@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
-import dummySchedule from '../js/dummyData1.js'; // 경로는 상황에 맞게 수정
+import dummySchedule from '../js/dummyData1.js';
 
 export default function WeekSchedule() {
   const [currentDate, setCurrentDate] = useState(getCurrentStartOfWeek());
-  const [todayDate] = useState(getCurrentStartOfWeek());
-
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const dates = getWeekDates(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
   const hours = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
@@ -64,28 +62,43 @@ export default function WeekSchedule() {
 
       {/* 시간표 본문 */}
       <div className="grid grid-cols-8">
-        {hours.map((hour, rowIndex) => (
-          <div key={`row-${rowIndex}`} className="contents">
-            <div className={`text-sm flex items-center justify-center border-b border-l border-r ${borderColor}`}>
-              {hour}
+        {(() => {
+          const prevEntries = {}; // 날짜별로 name 중복 방지
+          return hours.map((hour, rowIndex) => (
+            <div key={`row-${rowIndex}`} className="contents">
+              <div className={`text-sm flex items-center justify-center border-b border-l border-r ${borderColor}`}>
+                {hour}
+              </div>
+              {dates.map((dateObj, colIndex) => {
+                const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+                const entry = findEntryForCell(dateObj, hour);
+
+                const prevKey = `${dateStr}-${entry?.name}`;
+                const alreadyShown = prevEntries[prevKey]?.lastHour !== undefined;
+                const showText = entry && !alreadyShown;
+
+                const isMerged = entry && alreadyShown;
+
+                if (entry) {
+                  prevEntries[prevKey] = { lastHour: hour };
+                }
+
+                return (
+                  <div
+                    key={`cell-${rowIndex}-${colIndex}`}
+                    className={`
+                      relative aspect-[1/1] flex items-center justify-center text-xs
+                      border-b ${borderColor} border-r ${borderColor}
+                      ${entry ? 'bg-orange-300 font-semibold text-white border-b-0' : ''}
+                    `}
+                  >
+                    {showText ? entry.name : null}
+                  </div>
+                );
+              })}
             </div>
-            {dates.map((dateObj, colIndex) => {
-              const entry = findEntryForCell(dateObj, hour);
-              return (
-                <div
-                  key={`cell-${rowIndex}-${colIndex}`}
-                  className={`
-                    relative aspect-[1/1] border-r border-b ${borderColor} 
-                    flex items-center justify-center text-xs 
-                    ${entry ? 'bg-orange-300 font-semibold text-white' : ''}
-                  `}
-                >
-                  {entry ? entry.name : null}
-                </div>
-              );
-            })}
-          </div>
-        ))}
+          ));
+        })()}
       </div>
     </div>
   );

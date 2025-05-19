@@ -47,7 +47,7 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
     <div className={`absolute top-0 left-0 h-full w-[280px] bg-white z-30 shadow-md transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="p-4 border-b">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-400 rounded-full text-white flex items-center justify-center font-bold">김</div>
+          <div className="w-10 h-10 bg-gray-400 rounded-full text-white flex items-center justify-center font-bold">천</div>
           <div>
             <div className="text-sm font-medium">chunjaemin@naver.com</div>
             <div

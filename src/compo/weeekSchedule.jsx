@@ -44,22 +44,23 @@ export default function WeekSchedule() {
 
             {/* 시간표 본문 */}
             <div className="grid grid-cols-8">
-                {hours.map((hour, rowIndex) => (
-                    <>
-                        <div key={`time-${rowIndex}`} className={`text-sm flex items-center justify-center border-b border-l border-r ${borderColor}`}>
-                            {hour}
-                        </div>
-                        {days.map((_, colIndex) => (
-                            <div
-                                key={`cell-${rowIndex}-${colIndex}`}
-                                className="relative aspect-[1/1]"
-                            >
-                                <div className={`w-full h-[50%] border-r border-b ${borderColor}`}></div>
-                                <div className={`w-full h-[50%] border-r border-b ${borderColor}`}></div>
-                            </div>
-                        ))}
-                    </>
+               {hours.map((hour, rowIndex) => (
+                <React.Fragment key={`row-${rowIndex}`}>
+                    <div className={`text-sm flex items-center justify-center border-b border-l border-r ${borderColor}`}>
+                    {hour}
+                    </div>
+                    {days.map((_, colIndex) => (
+                    <div
+                        key={`cell-${rowIndex}-${colIndex}`}
+                        className="relative aspect-[1/1]"
+                    >
+                        <div className={`w-full h-[50%] border-r border-b ${borderColor}`}></div>
+                        <div className={`w-full h-[50%] border-r border-b ${borderColor}`}></div>
+                    </div>
+                    ))}
+                </React.Fragment>
                 ))}
+
             </div>
         </div>
     );

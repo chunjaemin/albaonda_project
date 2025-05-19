@@ -9,9 +9,9 @@ import MyInfoDetail from './myInfoDetail.jsx';
 import '../App.css';
 
 export default function TeamSpace() {
-  const { isSidebar, doSwitch } = useSidebarStateStore();
+  const { isSidebar, doSwitch ,selectedTeamName} = useSidebarStateStore();
   const [showMyInfo, setShowMyInfo] = useState(false); // ✅ 모달 상태 추가
-  const { doSwitch, selectedTeamName } = useSidebarStateStore();
+
   return (
     <div className="relative min-h-screen">
       {/* 사이드바 오버레이 (모달과 별개) */}
@@ -41,7 +41,10 @@ export default function TeamSpace() {
 
       {/* 내 정보 모달 */}
       {showMyInfo && (
-        <MyInfoDetail onClose={() => setShowMyInfo(false)} />
+        <MyInfoDetail
+          isOpen={showMyInfo}
+          onClose={() => setShowMyInfo(false)}
+        />
       )}
     </div>
   );

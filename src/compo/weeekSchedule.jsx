@@ -1,30 +1,75 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
 import dummySchedule from '../js/dummyData1.js';
 
-export default function WeekSchedule() {
+export default function WeekSchedule({ isModify }) {
   const [currentDate, setCurrentDate] = useState(getCurrentStartOfWeek());
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const dates = getWeekDates(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
-  const hours = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+
+  const colorPalette = [
+    'bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-sky-100',
+    'bg-pink-100', 'bg-purple-100', 'bg-indigo-100', 'bg-emerald-100',
+    'bg-orange-100', 'bg-cyan-100', 'bg-violet-100'
+  ];
+
+  const nameColorMap = useMemo(() => {
+    const countMap = {};
+    dummySchedule.entries.forEach((entry) => {
+      const name = entry.name;
+      const start = parseTime(entry.startTime);
+      const end = parseTime(entry.endTime);
+      const duration = end - start;
+      countMap[name] = (countMap[name] || 0) + duration;
+    });
+
+    const sortedNames = Object.entries(countMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name);
+
+    const map = {};
+    sortedNames.forEach((name, index) => {
+      map[name] = colorPalette[index % colorPalette.length];
+    });
+
+    return map;
+  }, []);
+
+  function parseTime(timeStr) {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours + minutes / 60;
+  }
 
   const borderColor = 'border-gray-400';
+
+  const hours = Array.from({ length: 48 }, (_, i) => {
+    const hour = Math.floor(i / 2);
+    const minute = i % 2 === 0 ? '00' : '30';
+    return `${String(hour).padStart(2, '0')}:${minute}`;
+  });
 
   const findEntryForCell = (dateObj, hour) => {
     const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
     return dummySchedule.entries.find((entry) => {
       if (entry.date !== dateStr) return false;
-      const cellHour = parseInt(hour.split(':')[0], 10);
-      const [startHour] = entry.startTime.split(':').map(Number);
-      const [endHour] = entry.endTime.split(':').map(Number);
-      return cellHour >= startHour && cellHour < endHour;
+      const [entryStartHour, entryStartMin] = entry.startTime.split(':').map(Number);
+      const [entryEndHour, entryEndMin] = entry.endTime.split(':').map(Number);
+      const [cellHour, cellMin] = hour.split(':').map(Number);
+      const cellTotal = cellHour * 60 + cellMin;
+      const startTotal = entryStartHour * 60 + entryStartMin;
+      const endTotal = entryEndHour * 60 + entryEndMin;
+      return cellTotal >= startTotal && cellTotal < endTotal;
     });
   };
 
+  const scheduleItems = [
+    { name: "Mom's Touch", wage: 12000 },
+    { name: "버거킹", wage: 9125 },
+  ];
+
   return (
     <div className="p-4 mb-4">
-      {/* 날짜 컨트롤 바 */}
       <div className={`w-full aspect-[10/1] flex justify-between items-center border-b ${borderColor} pt-3 pb-3`}>
         <ChevronLeftIcon
           className='h-[100%] aspect-[1/1] cursor-pointer'
@@ -49,7 +94,6 @@ export default function WeekSchedule() {
         />
       </div>
 
-      {/* 요일 헤더 */}
       <div className="grid grid-cols-8 text-center">
         <div className={`border-b py-2 font-bold ${borderColor}`}><br />시간</div>
         {days.map((day, i) => (
@@ -60,14 +104,13 @@ export default function WeekSchedule() {
         ))}
       </div>
 
-      {/* 시간표 본문 */}
       <div className="grid grid-cols-8">
         {(() => {
-          const prevEntries = {}; // 날짜별로 name 중복 방지
+          const prevEntries = {};
           return hours.map((hour, rowIndex) => (
             <div key={`row-${rowIndex}`} className="contents">
-              <div className={`text-sm flex items-center justify-center border-b border-l border-r ${borderColor}`}>
-                {hour}
+              <div className={`text-[11px] flex items-center justify-center border-b border-l border-r ${borderColor}`}>
+                {rowIndex % 2 === 0 ? `${parseInt(hour.split(':')[0])}:00` : ''}
               </div>
               {dates.map((dateObj, colIndex) => {
                 const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
@@ -76,20 +119,21 @@ export default function WeekSchedule() {
                 const prevKey = `${dateStr}-${entry?.name}`;
                 const alreadyShown = prevEntries[prevKey]?.lastHour !== undefined;
                 const showText = entry && !alreadyShown;
-
                 const isMerged = entry && alreadyShown;
 
                 if (entry) {
                   prevEntries[prevKey] = { lastHour: hour };
                 }
 
+                const bgColor = entry ? nameColorMap[entry.name] || 'bg-orange-300' : '';
+
                 return (
                   <div
                     key={`cell-${rowIndex}-${colIndex}`}
                     className={`
-                      relative aspect-[1/1] flex items-center justify-center text-xs
+                      relative aspect-[2/1] flex items-center justify-center text-[11px]
                       border-b ${borderColor} border-r ${borderColor}
-                      ${entry ? 'bg-orange-300 font-semibold text-white border-b-0' : ''}
+                      ${entry ? `${bgColor} font-semibold text-gray-700 border-b-0 border-t-0` : ''}
                     `}
                   >
                     {showText ? entry.name : null}
@@ -100,6 +144,24 @@ export default function WeekSchedule() {
           ));
         })()}
       </div>
+
+      {isModify && (
+        <div className="mt-4 border-t pt-4">
+          <p className="text-center text-gray-500 mb-2">일정 선택</p>
+          <div className="flex flex-col gap-2">
+            {scheduleItems.map((item, index) => (
+              <div key={index} className="flex justify-between items-center px-4 py-2 bg-gray-100 rounded shadow-sm mb-2">
+                <div>
+                  <p className="text-sm font-semibold mt-2">{item.name}</p>
+                  <p className="text-xs text-gray-500 mt-2 mb-2">시급: {item.wage.toLocaleString()}원</p>
+                </div>
+                <button className="text-xs text-blue-600">수정</button>
+              </div>
+            ))}
+            <button className="py-2 text-center text-xl text-gray-500 bg-gray-100 rounded shadow-sm pt-6 pb-6">＋</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

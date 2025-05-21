@@ -3,7 +3,7 @@ const dummySchedule = {
   userId: "user001",
   title: "개인 시간표",
   startDate: "2025-04-08",
-  endDate: "2025-04-14",
+  endDate: "2025-05-20",
   entries: [
     {
       id: "entry001",
@@ -66,16 +66,16 @@ const dummySchedule = {
       }
     },
     {
-      id: "entry003",
+      id: "entry004",
       userId: "user001",
       name: "버거킹 알바",
-      nameById: "name003",
+      nameById: "name004",
       date: "2025-04-11",
       dayOfWeek: "금",
       startTime: "18:00",
       endTime: "23:30",
       payInfo: {
-        id: "pay003",
+        id: "pay004",
         userId: "user001",
         hourPrice: 12000,
         wHoliday: false,
@@ -83,6 +83,546 @@ const dummySchedule = {
         overtime: true,
         night: true,
         duty: "4대보험"
+      }
+    },
+    {
+      id: "entry005",
+      userId: "user001",
+      name: "스타벅스 알바",
+      nameById: "name005",
+      date: "2025-04-12",
+      dayOfWeek: "토",
+      startTime: "09:00",
+      endTime: "14:00",
+      payInfo: {
+        id: "pay005",
+        userId: "user001",
+        hourPrice: 13000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry006",
+      userId: "user001",
+      name: "GS25 알바",
+      nameById: "name006",
+      date: "2025-04-13",
+      dayOfWeek: "일",
+      startTime: "22:00",
+      endTime: "04:00",
+      payInfo: {
+        id: "pay006",
+        userId: "user001",
+        hourPrice: 12500,
+        wHoliday: false,
+        Holiday: true,
+        overtime: true,
+        night: true,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry007",
+      userId: "user001",
+      name: "맘스터치 알바",
+      nameById: "name007",
+      date: "2025-04-15",
+      dayOfWeek: "화",
+      startTime: "12:00",
+      endTime: "16:00",
+      payInfo: {
+        id: "pay007",
+        userId: "user001",
+        hourPrice: 11000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry008",
+      userId: "user001",
+      name: "스타벅스 알바",
+      nameById: "name008",
+      date: "2025-04-20",
+      dayOfWeek: "일",
+      startTime: "14:00",
+      endTime: "20:00",
+      payInfo: {
+        id: "pay008",
+        userId: "user001",
+        hourPrice: 13000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: true,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry009",
+      userId: "user001",
+      name: "GS25 알바",
+      nameById: "name009",
+      date: "2025-05-01",
+      dayOfWeek: "목",
+      startTime: "21:00",
+      endTime: "03:00",
+      payInfo: {
+        id: "pay009",
+        userId: "user001",
+        hourPrice: 12500,
+        wHoliday: false,
+        Holiday: true,
+        overtime: true,
+        night: true,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry010",
+      userId: "user001",
+      name: "버거킹 알바",
+      nameById: "name010",
+      date: "2025-05-03",
+      dayOfWeek: "토",
+      startTime: "08:00",
+      endTime: "14:00",
+      payInfo: {
+        id: "pay010",
+        userId: "user001",
+        hourPrice: 12000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry011",
+      userId: "user001",
+      name: "맘스터치 알바",
+      nameById: "name011",
+      date: "2025-05-10",
+      dayOfWeek: "토",
+      startTime: "15:00",
+      endTime: "22:00",
+      payInfo: {
+        id: "pay011",
+        userId: "user001",
+        hourPrice: 11000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: true,
+        night: true,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry012",
+      userId: "user001",
+      name: "GS25 알바",
+      nameById: "name012",
+      date: "2025-05-20",
+      dayOfWeek: "화",
+      startTime: "07:00",
+      endTime: "13:00",
+      payInfo: {
+        id: "pay012",
+        userId: "user001",
+        hourPrice: 12500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry013",
+      userId: "user001",
+      name: "공차 알바",
+      nameById: "name013",
+      date: "2025-04-14",
+      dayOfWeek: "월",
+      startTime: "07:00",
+      endTime: "11:00",
+      payInfo: {
+        id: "pay013",
+        userId: "user001",
+        hourPrice: 10500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry014",
+      userId: "user001",
+      name: "CU 알바",
+      nameById: "name014",
+      date: "2025-04-18",
+      dayOfWeek: "금",
+      startTime: "23:00",
+      endTime: "05:00",
+      payInfo: {
+        id: "pay014",
+        userId: "user001",
+        hourPrice: 12500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: true,
+        night: true,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry015",
+      userId: "user001",
+      name: "피자헛 알바",
+      nameById: "name015",
+      date: "2025-04-23",
+      dayOfWeek: "수",
+      startTime: "12:00",
+      endTime: "19:00",
+      payInfo: {
+        id: "pay015",
+        userId: "user001",
+        hourPrice: 11800,
+        wHoliday: false,
+        Holiday: false,
+        overtime: true,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry016",
+      userId: "user001",
+      name: "무신사 스토어 알바",
+      nameById: "name016",
+      date: "2025-04-27",
+      dayOfWeek: "일",
+      startTime: "10:00",
+      endTime: "17:00",
+      payInfo: {
+        id: "pay016",
+        userId: "user001",
+        hourPrice: 11000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry017",
+      userId: "user001",
+      name: "교보문고 알바",
+      nameById: "name017",
+      date: "2025-04-30",
+      dayOfWeek: "수",
+      startTime: "09:00",
+      endTime: "13:00",
+      payInfo: {
+        id: "pay017",
+        userId: "user001",
+        hourPrice: 10200,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry018",
+      userId: "user001",
+      name: "이디야 알바",
+      nameById: "name018",
+      date: "2025-05-02",
+      dayOfWeek: "금",
+      startTime: "06:00",
+      endTime: "09:00",
+      payInfo: {
+        id: "pay018",
+        userId: "user001",
+        hourPrice: 11000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: true,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry019",
+      userId: "user001",
+      name: "코엑스 행사 알바",
+      nameById: "name019",
+      date: "2025-05-05",
+      dayOfWeek: "월",
+      startTime: "08:00",
+      endTime: "20:00",
+      payInfo: {
+        id: "pay019",
+        userId: "user001",
+        hourPrice: 14000,
+        wHoliday: true,
+        Holiday: true,
+        overtime: true,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry020",
+      userId: "user001",
+      name: "롯데마트 알바",
+      nameById: "name020",
+      date: "2025-05-07",
+      dayOfWeek: "수",
+      startTime: "13:00",
+      endTime: "18:00",
+      payInfo: {
+        id: "pay020",
+        userId: "user001",
+        hourPrice: 11500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry021",
+      userId: "user001",
+      name: "코스트코 알바",
+      nameById: "name021",
+      date: "2025-05-11",
+      dayOfWeek: "일",
+      startTime: "09:00",
+      endTime: "18:00",
+      payInfo: {
+        id: "pay021",
+        userId: "user001",
+        hourPrice: 13000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: true,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry022",
+      userId: "user001",
+      name: "배달대행 알바",
+      nameById: "name022",
+      date: "2025-05-18",
+      dayOfWeek: "일",
+      startTime: "16:00",
+      endTime: "22:00",
+      payInfo: {
+        id: "pay022",
+        userId: "user001",
+        hourPrice: 15000,
+        wHoliday: true,
+        Holiday: false,
+        overtime: true,
+        night: true,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry023",
+      userId: "user001",
+      name: "이마트 알바",
+      nameById: "name023",
+      date: "2025-04-10",
+      dayOfWeek: "목",
+      startTime: "08:00",
+      endTime: "12:00",
+      payInfo: {
+        id: "pay023",
+        userId: "user001",
+        hourPrice: 10000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry024",
+      userId: "user001",
+      name: "던킨도너츠 알바",
+      nameById: "name024",
+      date: "2025-04-10",
+      dayOfWeek: "목",
+      startTime: "13:00",
+      endTime: "17:00",
+      payInfo: {
+        id: "pay024",
+        userId: "user001",
+        hourPrice: 10800,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry025",
+      userId: "user001",
+      name: "무신사 스토어 알바",
+      nameById: "name025",
+      date: "2025-04-14",
+      dayOfWeek: "월",
+      startTime: "14:00",
+      endTime: "19:00",
+      payInfo: {
+        id: "pay025",
+        userId: "user001",
+        hourPrice: 11000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry026",
+      userId: "user001",
+      name: "스타벅스 알바",
+      nameById: "name026",
+      date: "2025-04-14",
+      dayOfWeek: "월",
+      startTime: "20:00",
+      endTime: "23:30",
+      payInfo: {
+        id: "pay026",
+        userId: "user001",
+        hourPrice: 13000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: true,
+        night: true,
+        duty: "4대보험"
+      }
+    },
+    {
+      id: "entry027",
+      userId: "user001",
+      name: "GS25 알바",
+      nameById: "name027",
+      date: "2025-05-03",
+      dayOfWeek: "토",
+      startTime: "14:00",
+      endTime: "18:00",
+      payInfo: {
+        id: "pay027",
+        userId: "user001",
+        hourPrice: 12500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry028",
+      userId: "user001",
+      name: "피자헛 알바",
+      nameById: "name028",
+      date: "2025-05-07",
+      dayOfWeek: "수",
+      startTime: "09:00",
+      endTime: "12:30",
+      payInfo: {
+        id: "pay028",
+        userId: "user001",
+        hourPrice: 11500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry029",
+      userId: "user001",
+      name: "공차 알바",
+      nameById: "name029",
+      date: "2025-05-07",
+      dayOfWeek: "수",
+      startTime: "14:00",
+      endTime: "20:00",
+      payInfo: {
+        id: "pay029",
+        userId: "user001",
+        hourPrice: 10500,
+        wHoliday: false,
+        Holiday: false,
+        overtime: true,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry100",
+      userId: "user001",
+      name: "투썸 알바",
+      nameById: "name100",
+      date: "2025-05-07",
+      dayOfWeek: "수",
+      startTime: "04:00",
+      endTime: "06:30",
+      payInfo: {
+        id: "pay100",
+        userId: "user001",
+        hourPrice: 11000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: false,
+        night: false,
+        duty: "3.3%"
+      }
+    },
+    {
+      id: "entry101",
+      userId: "user001",
+      name: "이디야 알바",
+      nameById: "name101",
+      date: "2025-05-07",
+      dayOfWeek: "수",
+      startTime: "17:00",
+      endTime: "22:00",
+      payInfo: {
+        id: "pay101",
+        userId: "user001",
+        hourPrice: 12000,
+        wHoliday: false,
+        Holiday: false,
+        overtime: true,
+        night: true,
+        duty: "3.3%"
       }
     }
   ]

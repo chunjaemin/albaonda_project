@@ -67,10 +67,10 @@ export function getCurrentStartOfWeek() {
     const today = new Date();
     const day = today.getDay(); // 0(일) ~ 6(토)
     today.setDate(today.getDate() - day); // 이번 주의 시작일(일요일)로 설정
-    const dateData = { 
-        day: today.getDate(), 
-        month: today.getMonth() + 1, 
-        year: today.getFullYear()
-    };
-    return dateData;
+    // const dateData = { 
+    //     day: today.getDate(), 
+    //     month: today.getMonth() + 1, 
+    //     year: today.getFullYear()
+    // };
+    return today;
 }

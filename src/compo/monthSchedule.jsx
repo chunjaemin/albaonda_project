@@ -155,7 +155,6 @@ export default function MonthSchedule() {
         }
         return null;
       })}
-      <div className='w-full h-[300px]'></div>
     </div>
   );
 }

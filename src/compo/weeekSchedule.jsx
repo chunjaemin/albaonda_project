@@ -63,11 +63,6 @@ export default function WeekSchedule({ isModify }) {
     });
   };
 
-  const scheduleItems = [
-    { name: "Mom's Touch", wage: 12000 },
-    { name: "버거킹", wage: 9125 },
-  ];
-
   return (
     <div className="p-4 mb-4">
       <div className={`w-full aspect-[10/1] flex justify-between items-center border-b ${borderColor} pt-3 pb-3`}>
@@ -144,24 +139,6 @@ export default function WeekSchedule({ isModify }) {
           ));
         })()}
       </div>
-
-      {isModify && (
-        <div className="mt-4 border-t pt-4">
-          <p className="text-center text-gray-500 mb-2">일정 선택</p>
-          <div className="flex flex-col gap-2">
-            {scheduleItems.map((item, index) => (
-              <div key={index} className="flex justify-between items-center px-4 py-2 bg-gray-100 rounded shadow-sm mb-2">
-                <div>
-                  <p className="text-sm font-semibold mt-2">{item.name}</p>
-                  <p className="text-xs text-gray-500 mt-2 mb-2">시급: {item.wage.toLocaleString()}원</p>
-                </div>
-                <button className="text-xs text-blue-600">수정</button>
-              </div>
-            ))}
-            <button className="py-2 text-center text-xl text-gray-500 bg-gray-100 rounded shadow-sm pt-6 pb-6">＋</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

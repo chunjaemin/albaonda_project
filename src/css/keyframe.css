@@ -1,0 +1,42 @@
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 100%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 0%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gradient-animation {
+  background: linear-gradient(-45deg, #c7d2fe, #bfdbfe, #fbcfe8, #fde68a);
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease-in-out infinite;
+}
+
+@keyframes borderShift {
+  0% {
+    border-image-source: linear-gradient(90deg, #93c5fd, #fbcfe8);
+  }
+  50% {
+    border-image-source: linear-gradient(90deg, #fbcfe8, #a5f3fc);
+  }
+  100% {
+    border-image-source: linear-gradient(90deg, #93c5fd, #fbcfe8);
+  }
+}
+
+.animated-border {
+  border-width: 2px;
+  border-style: solid;
+  border-image-slice: 1;
+  animation: borderShift 5s ease-in-out infinite;
+}

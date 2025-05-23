@@ -32,7 +32,7 @@ export default function TeamSpace() {
       {/* 전체 레이아웃 */}
       <div className="flex flex-col min-h-screen">
         <TopBarTeamSpace />
-        <div className="flex-grow">
+        <div className="flex-grow pb-[80px]">
           <Outlet />
         </div>
         <BottomNavbarTeamSpace />

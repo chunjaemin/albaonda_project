@@ -46,18 +46,34 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
   return (
     <div className={`absolute top-0 left-0 h-full w-[280px] bg-white z-30 shadow-md transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="p-4 border-b">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-400 rounded-full text-white flex items-center justify-center font-bold">천</div>
-          <div>
-            <div className="text-sm font-medium">chunjaemin@naver.com</div>
-            <div
-              className="text-xs text-blue-500 cursor-pointer hover:underline"
-              onClick={onShowMyInfo}
-            >
-              내 정보 &gt;
-            </div>
-          </div>
-        </div>
+      <div className="flex">
+  {/* 왼쪽: 아이콘과 아래 정보 */}
+  <div className="flex flex-col">
+    {/* 아이콘 + 이름을 같은 줄에 배치 */}
+    <div className="flex items-center">
+      <div className="w-10 h-10 bg-gray-400 rounded-full text-white flex items-center justify-center font-bold">
+        천
+      </div>
+      <div className="ml-3 text-xl font-medium">천재민</div>
+    </div>
+
+    {/* 아이콘 아래 이메일, 내 정보 */}
+    <div className="mt-2">
+      <div className="text-xs text-gray-600">chunjaemin@naver.com</div>
+      <div
+        className="mt-1 text-xs text-blue-500 cursor-pointer hover:underline"
+        onClick={onShowMyInfo}
+      > 
+        내 정보 &gt;
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
       </div>
 
       <div className="p-4 space-y-3">

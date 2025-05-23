@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useSidebarStateStore } from '../js/store'
+import { useSidebarStateStore, useCurrentSpaceNameStore } from '../js/store'
 import '../App.css'
 
 export default function TopBar() {
   const { doSwitch } = useSidebarStateStore();
-  let space_name = "천재민의 개인공간";
+  const { name } = useCurrentSpaceNameStore();
+  let currentSpaceName = name;
   return (
     <>
       <div className="relative w-full aspect-[10/1] flex items-center border-b border-gray-300">
@@ -13,7 +14,7 @@ export default function TopBar() {
           <div className='w-full aspect-[8/1] bg-black mt-1'></div>
           <div className='w-full aspect-[8/1] bg-black mt-1'></div>
         </div>
-        <div className="m-4">{space_name}</div>
+        <div className="m-4">{currentSpaceName}</div>
       </div>
     </>
   )

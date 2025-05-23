@@ -7,11 +7,8 @@ import {
   PencilIcon,
 } from "@heroicons/react/24/outline";
 import { BookmarkIcon } from "@heroicons/react/24/solid";
-import { useSidebarStateStore } from '../js/store.js';
-import SideBarTeamSpace from './sideBarTeamSpace.jsx';
 
 export default function NoticeBoard() {
-  const { isSidebar, doSwitch } = useSidebarStateStore();
 
   const [showEditor, setShowEditor] = useState(false);
   const [editorType, setEditorType] = useState("공지사항");
@@ -50,14 +47,6 @@ export default function NoticeBoard() {
 
   return (
     <>
-      {isSidebar && (
-        <div
-          className="fixed top-0 left-0 z-20 w-full h-full bg-black/30"
-          onClick={doSwitch}
-        ></div>
-      )}
-      <SideBarTeamSpace isOpen={isSidebar} onClose={doSwitch} />
-
       <div className="p-4 space-y-6">
         {/* 공지사항 */}
         <div className="box notice-box">

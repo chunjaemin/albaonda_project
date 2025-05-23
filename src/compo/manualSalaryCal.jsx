@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { NumericFormat } from 'react-number-format';
+
 import '../App.css';
 
 export default function ManualSalaryCal() {
@@ -29,26 +31,36 @@ export default function ManualSalaryCal() {
         type="number"
         value={wage}
         onChange={(e) => setWage(e.target.value)}
-        className="w-full border border-gray-400 px-3 py-2 mb-[10%] rounded"
+        className="w-full border border-gray-400 px-3 py-2 rounded mb-2"
         placeholder="시급 입력"
       />
+      <p className="text-xs text-gray-500 mb-[10%] ml-3">최저 10,030원</p>
 
       <label className="block mb-2 font-semibold">하루 근무 시간</label>
       <div className="flex gap-2 mb-[10%]">
-        <input
-          type="number"
-          value={startHour}
-          onChange={(e) => setStartHour(e.target.value)}
-          className="w-1/2 border border-gray-400 px-3 py-2 rounded"
-          placeholder="시작"
+        <NumericFormat
+          thousandSeparator
+          suffix=" 시간"
+          allowNegative={false}
+          placeholder="시간 입력 (예: 8)"
+          className="w-full border border-gray-400 rounded p-2 pr-10"
+          isAllowed={({ value }) => {
+            const num = Number(value);
+            return value === '' || (num >= 0 && num <= 24);
+          }}
+          onValueChange={(values) => {
+            // console.log('입력된 실제 숫자:', values.value); // 예: "12000"
+          }}
         />
-        <input
-          type="number"
-          value={endHour}
-          onChange={(e) => setEndHour(e.target.value)}
-          className="w-1/2 border border-gray-400 px-3 py-2 rounded"
-          placeholder="종료"
-        />
+        <select
+          className="w-full border border-gray-400 rounded p-2"
+          defaultValue=""
+          onChange={(e) => onChange(Number(e.target.value))}
+        >
+          <option value="" disabled hidden>분 입력 (예: 30)</option>
+          <option value="0">0 분</option>
+          <option value="30">30 분</option>
+        </select>
       </div>
 
       <label className="block mb-2 font-semibold">근무 일수</label>

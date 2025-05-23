@@ -12,9 +12,9 @@ export default function BottomNavbarTeamSpace() {
   const currentPath = location.pathname;
 
   const navItems = [
-    { path: "/teamspace/teamschedule", label: "시간표", Icon: CalendarIcon },
-    { path: "/teamspace/noticeboard", label: "게시판", Icon: ClipboardIcon },
-    { path: "/teamspace/userinfo", label: "사용자 정보", Icon: UserGroupIcon },
+    { path: "/teamspace/teamSchedule", label: "시간표", Icon: CalendarIcon },
+    { path: "/teamspace/noticeBoard", label: "게시판", Icon: ClipboardIcon },
+    { path: "/teamspace/userInfo", label: "사용자 정보", Icon: UserGroupIcon },
   ];
 
   useEffect(() => {

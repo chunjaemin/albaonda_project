@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import '../App.css';
 import '../css/keyframe.css'; // 커스텀 애니메이션 CSS 임포트
+
 import { GoogleLogin } from '@react-oauth/google';
+import NaverLoginButton from '../compo/naverLoginButton'
+import KakaoLoginButton from "../compo/kakaoLoginButton";
+
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
@@ -10,7 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
 
   const [userInfo, setUserInfo] = useState({});
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleLogin = (credentialResponse) => {
     const decoded = jwtDecode(credentialResponse.credential);
@@ -52,7 +56,11 @@ export default function Login() {
               console.log('Login Failed');
               alert('Login Failed'); //나중에 지우기 
             }}
-          />;
+          />
+          <NaverLoginButton/>
+          <div className="flex flex-col gap-4 p-4">
+            <KakaoLoginButton />
+          </div>
 
           {/* Form */}
           <div className="space-y-4">

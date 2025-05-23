@@ -1,9 +1,9 @@
 // ✅ TeamSpace.jsx (상위 전체 레이아웃 역할)
 import { useSidebarStateStore } from '../js/store.js';
 import { Outlet } from "react-router-dom";
-import TopBarTeamSpace from './topBarTeamSpace.jsx';
+import TopBar from './topBar.jsx';
+import SideBar from './sideBar.jsx';
 import BottomNavbarTeamSpace from './bottomNavbarTeamSpace.jsx';
-import SideBarTeamSpace from './sideBarTeamSpace.jsx';
 
 import '../App.css';
 
@@ -21,11 +21,11 @@ export default function TeamSpace() {
       )}
 
       {/* 사이드바 (항상 페이지 전체 기준) */}
-      <SideBarTeamSpace isOpen={isSidebar} onClose={doSwitch} />
+      <SideBar />
 
       {/* 페이지 주요 콘텐츠 */}
       <div className="flex flex-col min-h-screen">
-        <TopBarTeamSpace />
+        <TopBar />
         <div className="flex-grow">
           <Outlet />
         </div>

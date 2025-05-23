@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {Routes, Route, Navigate} from 'react-router-dom'
 
 import Landing from './compo/landing.jsx'
@@ -14,9 +14,18 @@ import UserInfo from './compo/userInfo.jsx'
 import NoticeBoard from './compo/noticeBoard.jsx'
 import CalResult from './compo/calResult.jsx'
 
+import { useCurrentSpaceNameStore } from './js/store'
+import { dummyUserData } from './js/dummyUserData.js' 
+
 import './App.css'
 
 function App() {
+  const { setName } = useCurrentSpaceNameStore();
+
+  useEffect(() => {
+    setName(dummyUserData.name + ' 개인공간');
+  }, []); 
+
   return (
     <>
       <div className="relative w-full sm:max-w-[600px] mx-auto overflow-x-hidden">

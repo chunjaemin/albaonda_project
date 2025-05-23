@@ -1,72 +1,39 @@
-// ✅ userinfo.jsx
 import { useState } from 'react';
 import UserDetail from './userDetail';
 import Invite from './invite';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import '../App.css';
 import '../index.css';
-import SideBarTeamSpace from './sideBarTeamSpace.jsx';
+
+// ✅ 외부 dummyTeam 데이터 import
+import { dummyTeam } from '../js/dummyTeam';
 
 export default function UserInfo() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [inviteRole, setInviteRole] = useState(null);
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      role: '점장',
-      name: '김점장',
-      birth: '1980-01-01',
-      gender: '남성',
-      email: 'manager@example.com',
-      salary: '400만원',
-      account: '123-456-789',
-      emergencyContact: '010-0000-0000',
-      memo: '',
-    },
-    {
-      id: 2,
-      role: '직원',
-      name: '이직원',
-      birth: '1990-05-12',
-      gender: '여성',
-      email: 'staff@example.com',
-      salary: '300만원',
-      account: '987-654-321',
-      emergencyContact: '010-0000-0000',
-      memo: '',
-    },
-    {
-      id: 3,
-      role: '알바',
-      name: '박알바',
-      birth: '2000-10-10',
-      gender: '남성',
-      email: 'parttimer@example.com',
-      salary: '시급 12,000원',
-      account: '112-233-344',
-      emergencyContact: '010-0000-0000',
-      memo: '',
-    },
-  ]);
+  const [users, setUsers] = useState(dummyTeam.members);
 
   const roleClass = {
-    '점장': 'manager-box',
+    '관리자': 'manager-box',
     '직원': 'staff-box',
     '알바': 'parttimer-box',
   };
 
   const grouped = {
-    점장: users.filter((u) => u.role === '점장'),
+    관리자: users.filter((u) => u.role === '관리자'),
     직원: users.filter((u) => u.role === '직원'),
     알바: users.filter((u) => u.role === '알바'),
   };
 
   const handleInvite = (email) => {
     const newUser = {
-      id: Date.now(),
-      role: inviteRole,
+      id: Date.now().toString(),
+      teamId: dummyTeam.id,
       name: '초대됨',
-      birth: '',
+      role: inviteRole,
+      phoneNumber: '',
+      address: '',
+      birthDate: '',
       gender: '',
       email,
       salary: '',
@@ -81,11 +48,11 @@ export default function UserInfo() {
   return (
     <>
       <div className="user-info-section space-y-6">
-        {['점장', '직원', '알바'].map((role) => (
+        {['관리자', '직원', '알바'].map((role) => (
           <div key={role}>
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-base font-semibold">{role}</h2>
-              {role !== '점장' && (
+              {role !== '관리자' && (
                 <button
                   onClick={() => setInviteRole(role)}
                   className="flex items-center text-blue-600 text-sm cursor-pointer hover:underline"
@@ -102,7 +69,7 @@ export default function UserInfo() {
                   onClick={() => setSelectedUser(user)}
                 >
                   <h3>
-                    {user.role === '점장' && '👨‍💼'}
+                    {user.role === '관리자' && '👨‍💼'}
                     {user.role === '직원' && '👩‍💼'}
                     {user.role === '알바' && '🧑‍🍳'} {user.role}
                   </h3>
@@ -121,9 +88,7 @@ export default function UserInfo() {
           onClose={() => setSelectedUser(null)}
           onSave={(updatedUser) => {
             setUsers((prev) =>
-              prev.map((u) =>
-                u.id === updatedUser.id ? updatedUser : u
-              )
+              prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
             );
             setSelectedUser(updatedUser);
           }}

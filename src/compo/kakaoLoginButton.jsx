@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import kakao_logo from '../assets/kakao_logo.png'
 
 export default function KakaoLoginButton() {
     const kakaoAppKey = "2021c041cfaf03777f82835e12b9f9c4"; // 카카오 JavaScript 키
@@ -48,12 +49,12 @@ export default function KakaoLoginButton() {
     return (
         <button
             onClick={handleLogin}
-            className="relative w-full aspect-[10/1] bg-[#FEE500] text-[#191600] font-semibold rounded-md text-lg flex items-center justify-start px-4 gap-2"
+            className="relative w-full aspect-[10/1] bg-[#FEE500] text-[#191600] font-semibold rounded-md text-sm flex items-center justify-center cursor-pointer"
         >
             <img
-                src=""
+                src={kakao_logo}
                 alt="카카오"
-                className="h-[60%] aspect-square"
+                className="h-[100%] aspect-square absolute top-0 left-0 rounded-md"
             />
             카카오로 로그인
         </button>

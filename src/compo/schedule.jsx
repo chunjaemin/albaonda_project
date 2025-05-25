@@ -5,10 +5,14 @@ import MonthSchedule from './monthSchedule.jsx';
 import WeekSchedule from './weeekSchedule.jsx';
 import { NumericFormat } from 'react-number-format';
 
+import { useAuthStore } from '../js/store.js';
+
 export default function Schedule() {
   const [scheduleType, setScheduleType] = useState('month'); // 'month' or 'week'
   const [isModify, setIsModify] = useState(false); // 수정 모드 여부
   const [showModal, setShowModal] = useState(false); // 모달 표시 여부
+
+  const user = useAuthStore((s)=>s.user)
 
   // 수당 상태
   const [allowances, setAllowances] = useState({

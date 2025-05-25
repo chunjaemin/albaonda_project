@@ -12,12 +12,12 @@ export default function NaverLoginButton() {
   return (
     <button
       onClick={handleLogin}
-      className="relative w-full aspect-[10/1] bg-[#03C75A] text-white font-semibold rounded-md text-sm flex items-center justify-center gap-2 px-4"
+      className="relative w-full aspect-[10/1] bg-[#03C75A] text-white font-semibold rounded-md text-sm flex items-center justify-center gap-2 px-4 cursor-pointer"
     >
       <img
         src={naver_logo}
         alt="네이버 로고"
-        className="h-[100%] aspect-square absolute top-0 left-0"
+        className="h-[100%] aspect-square absolute top-0 left-0 rounded-md"
       />
       네이버로 로그인
     </button>

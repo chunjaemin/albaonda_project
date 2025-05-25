@@ -20,3 +20,10 @@ export const useCurrentTeamIdStore = create((set)=>({
   teamId: "",
   setId: (newId) => set(() => ({ teamId: newId }))
 }));
+
+
+export const useAuthStore = create((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
+}));

@@ -9,17 +9,21 @@ import KakaoLoginButton from "../compo/kakaoLoginButton";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+import { useAuthStore } from '../js/store';
 
-  const [userInfo, setUserInfo] = useState({});
+export default function Login() {
   const navigate = useNavigate();
+  const setUser = useAuthStore((s)=>s.setUser)
 
   const handleLogin = (credentialResponse) => {
-    const decoded = jwtDecode(credentialResponse.credential);
-    setUserInfo(credentialResponse);
-    console.log(decoded);
+    const userData = jwtDecode(credentialResponse.credential);
+    setUser({
+      id: "user001",
+      name: userData.name,
+      email: userData.email,
+      teams: ["team001", "team002"]
+    })
+    navigate('/home/schedule'); // 로그인 성공 시 홈으로 이동
   };
 
   return (
@@ -36,8 +40,8 @@ export default function Login() {
         <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
           {/* Title */}
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold">Get Started now</h1>
-            <p className="text-gray-500 text-sm">Create an account or log in to explore about our app</p>
+            <h1 className="text-2xl font-bold">알바온다 소셜 로그인</h1>
+            <p className="text-gray-500 text-sm mt-1">일정을 효율적으로 관리하고 급여 관리를 간편하게 해보세요!</p>
           </div>
 
           {/* Toggle Tabs */}
@@ -46,71 +50,31 @@ export default function Login() {
             <button className="flex-1 py-2 text-sm font-medium text-gray-500">Sign Up</button>
           </div>
 
-          <GoogleLogin
-            onSuccess={credentialResponse => {
-              // console.log(credentialResponse);
-              handleLogin(credentialResponse);
-              navigate('/home/schedule'); // 로그인 성공 시 홈으로 이동
-            }}
-            onError={() => {
-              console.log('Login Failed');
-              alert('Login Failed'); //나중에 지우기 
-            }}
-          />
-          <NaverLoginButton/>
-          <div className="flex flex-col gap-4 p-4">
+          <div className='m-4 cursor-pointer'>
+            <GoogleLogin
+              ux_mode = "popup"
+              onSuccess={credentialResponse => {
+                // console.log(credentialResponse);
+                handleLogin(credentialResponse);
+              }}
+              onError={() => {
+                console.log('Login Failed');
+                alert('Login Failed'); //나중에 지우기 
+              }}
+            />
+          </div>
+          <div className='m-4'>
             <KakaoLoginButton />
+          </div>
+          <div className='m-4'>
+            <NaverLoginButton />
           </div>
 
           {/* Form */}
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Loisbecket@gmail.com"
-                className="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <div className="relative">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 cursor-pointer">
-                  👁️
-                </span>
-              </div>
             </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" className="accent-blue-500" /> Remember me
-              </label>
-              <a href="#" className="text-blue-600 hover:underline">Forgot Password ?</a>
-            </div>
-
-            <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-all">
-              Log In
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="text-center text-gray-400 my-4 text-sm">Or login with</div>
-
-          {/* Social Icons */}
-          <div className="grid grid-cols-4 gap-4">
-            <button className="flex items-center justify-center border rounded p-2"><img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="google" className="w-5 h-5" /></button>
-            <button className="flex items-center justify-center border rounded p-2"><img src="https://img.icons8.com/ios-filled/50/3b5998/facebook-new.png" alt="facebook" className="w-5 h-5" /></button>
-            <button className="flex items-center justify-center border rounded p-2"><img src="https://img.icons8.com/ios-filled/50/000000/mac-os.png" alt="apple" className="w-5 h-5" /></button>
-            <button className="flex items-center justify-center border rounded p-2"><img src="https://img.icons8.com/ios-filled/50/000000/smartphone.png" alt="phone" className="w-5 h-5" /></button>
           </div>
         </div>
       </div>

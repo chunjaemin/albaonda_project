@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import kakao_logo from '../assets/kakao_logo.png'
+import { useAuthStore } from '../js/store';
 
 export default function KakaoLoginButton() {
+    const setUser = useAuthStore((s)=>s.setUser)
     const kakaoAppKey = "2021c041cfaf03777f82835e12b9f9c4"; // 카카오 JavaScript 키
     const navigate = useNavigate();
     useEffect(() => {
@@ -27,12 +30,15 @@ export default function KakaoLoginButton() {
         window.Kakao.Auth.login({
             scope: 'profile_nickname',
             success: function (authObj) {
-                console.log('카카오 로그인 성공:', authObj);
                 window.Kakao.API.request({
                     url: '/v2/user/me',
                     success: function (res) {
-                        console.log('사용자 정보:', res);
-                        // 필요 시: 서버로 전달
+                        setUser({
+                            id: "user001",              
+                            name: res.kakao_account.profile.nickname,   
+                            email: "chun4582@naver.com",       
+                            teams: ["team001","team002"]
+                        })
                         navigate("/home/schedule");
                     },
                     fail: function (error) {

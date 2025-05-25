@@ -12,6 +12,7 @@ import '../App.css'
 
 export default function Home() {
   const { isSidebar, doSwitch } = useSidebarStateStore();
+
   return (
     <>
       {isSidebar && (

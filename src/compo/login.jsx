@@ -9,17 +9,21 @@ import KakaoLoginButton from "../compo/kakaoLoginButton";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+import { useAuthStore } from '../js/store';
 
-  const [userInfo, setUserInfo] = useState({});
+export default function Login() {
   const navigate = useNavigate();
+  const setUser = useAuthStore((s)=>s.setUser)
 
   const handleLogin = (credentialResponse) => {
-    const decoded = jwtDecode(credentialResponse.credential);
-    setUserInfo(credentialResponse);
-    console.log(decoded);
+    const userData = jwtDecode(credentialResponse.credential);
+    setUser({
+      id: "user001",
+      name: userData.name,
+      email: userData.email,
+      teams: ["team001", "team002"]
+    })
+    navigate('/home/schedule'); // 로그인 성공 시 홈으로 이동
   };
 
   return (
@@ -37,7 +41,7 @@ export default function Login() {
           {/* Title */}
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold">알바온다 소셜 로그인</h1>
-            <p className="text-gray-500 text-sm">일정을 효율적으로 관리하고 급여 관리를 간편하게 해보세요!</p>
+            <p className="text-gray-500 text-sm mt-1">일정을 효율적으로 관리하고 급여 관리를 간편하게 해보세요!</p>
           </div>
 
           {/* Toggle Tabs */}
@@ -48,10 +52,10 @@ export default function Login() {
 
           <div className='m-4 cursor-pointer'>
             <GoogleLogin
+              ux_mode = "popup"
               onSuccess={credentialResponse => {
                 // console.log(credentialResponse);
                 handleLogin(credentialResponse);
-                navigate('/home/schedule'); // 로그인 성공 시 홈으로 이동
               }}
               onError={() => {
                 console.log('Login Failed');
@@ -63,7 +67,7 @@ export default function Login() {
             <KakaoLoginButton />
           </div>
           <div className='m-4'>
-            <NaverLoginButton/>
+            <NaverLoginButton />
           </div>
 
           {/* Form */}

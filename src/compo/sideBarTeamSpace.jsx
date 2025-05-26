@@ -113,12 +113,6 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
                 >
                   {team.name}
                 </span>
-                <button
-                  onClick={() => toggleEdit(team.id, team.name)}
-                  className="hover:text-gray-700"
-                >
-                  <PencilIcon className="h-5 w-5 text-gray-500 cursor-pointer" />
-                </button>
               </>
             )}
           </div>

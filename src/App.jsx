@@ -60,9 +60,9 @@ function App() {
       <div className="relative w-full sm:max-w-[600px] mx-auto overflow-x-hidden">
         <Routes>
           <Route path="/landing" element={<Landing />} />
-          <Route path="/login" element={<ProtectedRoute guestOnly={true}><Login /></ProtectedRoute>} />
+          <Route path="/login" element={<ProtectedRoute guestOnly={false}><Login /></ProtectedRoute>} />
 
-          <Route path="/home" element={<ProtectedRoute requireLogin={true}><Home /></ProtectedRoute>}>
+          <Route path="/home" element={<ProtectedRoute requireLogin={false}><Home /></ProtectedRoute>}>
             <Route index element={<Navigate to="/home/schedule" replace />} />
             <Route path="schedule" element={<Schedule />} />
             <Route path="salary" element={<Salary />} />
@@ -71,7 +71,7 @@ function App() {
             <Route path="*" element={<Navigate to="/home/schedule" replace />} />
           </Route>
 
-          <Route path="/teamspace" element={<ProtectedRoute requireLogin={true}><TeamSpace /></ProtectedRoute>}>
+          <Route path="/teamspace" element={<ProtectedRoute requireLogin={false}><TeamSpace /></ProtectedRoute>}>
             <Route path="teamschedule" element={<TeamSchedule />} />
             <Route path="userinfo" element={<UserInfo />} />
             <Route path="noticeboard" element={<NoticeBoard />} />

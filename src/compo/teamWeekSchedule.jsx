@@ -1,132 +1,173 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
-import { dummyTeamSchedule1 } from '../js/dummyTeamData.js';
+import { getWeekDates } from '../js/scheduleDate.js';
+import { getUserColor } from '../js/colorUtils';
 
-export default function TeamWeekSchedule() {
-    const [currentDate, setCurrentDate] = useState(getCurrentStartOfWeek());
+export default function teemWeekSchedule({
+    isEditing,
+    selectedUser,
+    scheduleData,
+    setScheduleData,
+    currentWeekStart,
+    setCurrentWeekStart
+}) {
+    // ✅ 안전 검사 먼저 수행
+    const isValidWeekStart = currentWeekStart &&
+        typeof currentWeekStart === 'object' &&
+        'year' in currentWeekStart &&
+        'month' in currentWeekStart &&
+        'day' in currentWeekStart;
+
+    const [dates, setDates] = useState([]);
+    const [openDetailBlock, setOpenDetailBlock] = useState(null);
+
+
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const dates = getWeekDates(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
-
-    const colorPalette = [
-        'bg-rose-300', 'bg-amber-300', 'bg-lime-300', 'bg-sky-300',
-        'bg-pink-300', 'bg-purple-300', 'bg-indigo-300', 'bg-emerald-300',
-        'bg-orange-300', 'bg-cyan-300', 'bg-violet-300'
-    ];
-
-    const nameColorMap = useMemo(() => {
-        const names = [...new Set(dummyTeamSchedule1.entries.map(e => e.name))].sort();
-        const map = {};
-        names.forEach((name, index) => {
-            map[name] = colorPalette[index % colorPalette.length];
-        });
-        return map;
-    }, []);
-
-    const getInitial = (name) => name[0];
-
-    const borderColor = 'border-gray-400';
-
     const hours = Array.from({ length: 48 }, (_, i) => {
-        const hour = Math.floor(i / 2);
+        const hour = String(Math.floor(i / 2)).padStart(2, '0');
         const minute = i % 2 === 0 ? '00' : '30';
-        return `${String(hour).padStart(2, '0')}:${minute}`;
+        return `${hour}:${minute}`;
     });
 
-    const parseTime = (timeStr) => {
-        const [hours, minutes] = timeStr.split(":").map(Number);
-        return hours * 60 + minutes;
+    useEffect(() => {
+        if (isValidWeekStart) {
+            const { year, month, day } = currentWeekStart;
+            setDates(getWeekDates(year, month, day));
+        }
+    }, [currentWeekStart]);
+
+
+
+
+    if (!isValidWeekStart) {
+        return <div className="p-4">날짜 정보를 불러오는 중입니다...</div>;
+    }
+
+    const handlePrevWeek = () => {
+        const date = new Date(currentWeekStart.year, currentWeekStart.month - 1, currentWeekStart.day);
+        date.setDate(date.getDate() - 7);
+        setCurrentWeekStart({
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            day: date.getDate(),
+        });
     };
 
-    const findEntriesForCell = (dateObj, hour) => {
-        const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
-        const cellMinutes = parseTime(hour);
-        return dummyTeamSchedule1.entries
-            .filter(entry => {
-                if (entry.date !== dateStr) return false;
-                const start = parseTime(entry.startTime);
-                const end = parseTime(entry.endTime);
-                return cellMinutes >= start && cellMinutes < end;
-            })
-            .sort((a, b) => a.name.localeCompare(b.name));
+    const handleNextWeek = () => {
+        const date = new Date(currentWeekStart.year, currentWeekStart.month - 1, currentWeekStart.day);
+        date.setDate(date.getDate() + 7);
+        setCurrentWeekStart({
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            day: date.getDate(),
+        });
     };
+
+    const weekKey = `${currentWeekStart.year}-${String(currentWeekStart.month).padStart(2, '0')}-${String(currentWeekStart.day).padStart(2, '0')}`;
+
+    const handleBlockClick = (row, col) => {
+        const key = `${row}-${col}`;
+        if (isEditing && selectedUser) {
+            setScheduleData(prev => {
+                const weekData = { ...prev[weekKey] } || {};
+                const userSet = new Set(weekData[selectedUser] || []);
+                const newSet = new Set(userSet);
+                if (newSet.has(key)) newSet.delete(key);
+                else newSet.add(key);
+                return {
+                    ...prev,
+                    [weekKey]: {
+                        ...weekData,
+                        [selectedUser]: newSet
+                    }
+                };
+            });
+        } else {
+            setOpenDetailBlock(prev => (prev === key ? null : key));
+        }
+    };
+
+    const currentWeekUsers = scheduleData[weekKey] || {};
 
     return (
         <div className="p-4 mb-4">
-            {/* 상단 날짜 표시 및 이동 */}
-            <div className={`w-full aspect-[10/1] flex justify-between items-center border-b ${borderColor} pt-3 pb-3`}>
-                <ChevronLeftIcon
-                    className='h-[100%] aspect-[1/1] cursor-pointer'
-                    onClick={() => {
-                        setCurrentDate(prev => {
-                            const newDate = new Date(prev);
-                            newDate.setDate(newDate.getDate() - 7);
-                            return newDate;
-                        });
-                    }}
-                />
-                <div>{dates[0].month}월 {dates[0].day}일 - {dates[6].month}월 {dates[6].day}일, {dates[0].year}년</div>
-                <ChevronRightIcon
-                    className='h-[100%] aspect-[1/1] cursor-pointer'
-                    onClick={() => {
-                        setCurrentDate(prev => {
-                            const newDate = new Date(prev);
-                            newDate.setDate(newDate.getDate() + 7);
-                            return newDate;
-                        });
-                    }}
-                />
+            <div className="w-full aspect-[10/1] flex justify-between items-center border-b border-gray-400 pt-3 pb-3">
+                <ChevronLeftIcon className="h-[100%] aspect-[1/1] cursor-pointer" onClick={handlePrevWeek} />
+                <div>
+                    {dates[0]?.month}월 {dates[0]?.day}일 - {dates[6]?.month}월 {dates[6]?.day}일, {dates[0]?.year}년
+                </div>
+                <ChevronRightIcon className="h-[100%] aspect-[1/1] cursor-pointer" onClick={handleNextWeek} />
             </div>
 
-            {/* 요일 헤더 */}
             <div className="grid grid-cols-8 text-center">
-                <div className={`border-b py-2 font-bold ${borderColor}`}><br />시간</div>
+                <div className="border-b py-2 font-bold border-gray-400"><br />시간</div>
                 {days.map((day, i) => (
-                    <div key={day} className={`border-b py-2 ${borderColor}`}>
+                    <div key={day} className="border-b py-2 border-gray-400">
                         <div className="font-bold">{day}</div>
-                        <div className="text-sm text-gray-500">{dates[i].day}</div>
+                        <div className="text-sm text-gray-500">{dates[i]?.day}</div>
                     </div>
                 ))}
             </div>
 
-            {/* 시간표 셀 */}
             <div className="grid grid-cols-8">
-                {hours.map((hour, rowIndex) => (
-                    <div key={`row-${rowIndex}`} className="contents">
-                        {/* 시간 컬럼 */}
-                        <div className={`text-[11px] flex items-center justify-center border-b border-l border-r ${borderColor}`}>
-                            {rowIndex % 2 === 0 ? `${parseInt(hour.split(':')[0])}:00` : ''}
+                {Array.from({ length: 48 }, (_, rowIndex) => (
+                    <React.Fragment key={`row-${rowIndex}`}>
+                        <div className="text-xs flex items-center justify-center border-b border-l border-r border-gray-400 h-8">
+                            {rowIndex % 2 === 0 ? hours[rowIndex] : ''}
                         </div>
+                        {days.map((_, colIndex) => {
+                            const blockKey = `${rowIndex}-${colIndex}`;
+                            const isEditable = isEditing && selectedUser;
+                            const isSelectedUserActive = isEditable && scheduleData[weekKey]?.[selectedUser]?.has(blockKey);
+                            const blockUsers = Object.entries(currentWeekUsers)
+                                .filter(([_, blocks]) => blocks?.has?.(blockKey))
+                                .map(([user]) => user);
+                            const visibleUsers = blockUsers.slice(0, 2);
+                            const hasMore = blockUsers.length > 2;
+                            const isDetailOpen = openDetailBlock === blockKey;
 
-                        {/* 요일별 셀 */}
-                        {dates.map((dateObj, colIndex) => {
-                            const entries = findEntriesForCell(dateObj, hour);
                             return (
                                 <div
-                                    key={`cell-${rowIndex}-${colIndex}`}
-                                    className={`relative aspect-[2/1] border-b ${borderColor} border-r ${borderColor} flex items-center px-1 overflow-x-hidden`}
+                                    key={blockKey}
+                                    className={`relative h-8 border border-gray-300 transition duration-100 ${isEditable ? 'hover:border-blue-400 hover:cursor-pointer' : ''
+                                        }`}
+                                    onClick={() => handleBlockClick(rowIndex, colIndex)}
+                                    style={{
+                                        backgroundColor: isSelectedUserActive
+                                            ? getUserColor(selectedUser)
+                                            : 'transparent',
+                                    }}
                                 >
-                                    {entries.map((entry, i) => {
-                                        return <div
-                                            key={entry.id}
-                                            title={entry.name}
-                                            className={`
-                                                flex items-center justify-center
-                                                ${nameColorMap[entry.name] || 'bg-gray-300'}
-                                                text-[10px] text-white font-bold
-                                                rounded-full
-                                                h-[80%] aspect-square
-                                                mr-1
-                                            `}
-                                            style={{ transform: `translateX(-${i * 50}%)` }}
-                                        >
-                                            {getInitial(entry.name)}
+                                    {!isEditing && blockUsers.length > 0 && (
+                                        <div className="absolute left-1 top-1 flex gap-[2px] items-center">
+                                            {visibleUsers.map(user => (
+                                                <div
+                                                    key={user}
+                                                    className="w-4 h-4 text-[10px] rounded-full text-white flex items-center justify-center"
+                                                    style={{ backgroundColor: getUserColor(user) }}
+                                                    title={user}
+                                                >
+                                                    {user[0]}
+                                                </div>
+                                            ))}
+                                            {hasMore && <span className="text-[10px]">...</span>}
                                         </div>
-                                    })}
+                                    )}
+
+                                    {!isEditing && isDetailOpen && blockUsers.length > 2 && (
+                                        <div className="absolute top-full left-0 mt-1 p-4 bg-white border rounded-lg shadow-lg z-50 min-w-[160px]">
+                                            {[...blockUsers].sort((a, b) => a.localeCompare(b)).map(user => (
+                                                <div key={user} className="flex items-center gap-1 whitespace-nowrap">
+                                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getUserColor(user) }}></div>
+                                                    {user}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
-                    </div>
+                    </React.Fragment>
                 ))}
             </div>
         </div>

@@ -17,6 +17,7 @@ export default function Login() {
 
   const handleLogin = (credentialResponse) => {
     const userData = jwtDecode(credentialResponse.credential);
+    console.log(userData)
     setUser({
       id: "user001",
       name: userData.name,
@@ -54,7 +55,6 @@ export default function Login() {
             <GoogleLogin
               ux_mode = "popup"
               onSuccess={credentialResponse => {
-                // console.log(credentialResponse);
                 handleLogin(credentialResponse);
               }}
               onError={() => {

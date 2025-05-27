@@ -4,6 +4,7 @@ import '../App.css';
 import MonthSchedule from './monthSchedule.jsx';
 import WeekSchedule from './weeekSchedule.jsx';
 import { NumericFormat } from 'react-number-format';
+import { motion } from "framer-motion";
 
 import { useAuthStore } from '../js/store.js';
 import dummySchedule from '../js/dummyData1.js';
@@ -87,9 +88,40 @@ export default function Schedule() {
     <>
       <div className='w-full'>
         <div className='w-full flex justify-between'>
-          <div className='ml-4 w-[20%] aspect-[10/3] flex border border-gray-300 rounded-[8px] mt-5'>
-            <div className={`w-[50%] border-r border-gray-300 flex justify-center items-center ${month_blue} cursor-pointer`} onClick={() => setScheduleType("month")}>월</div>
-            <div className={`w-[50%] border-r border-gray-300 flex justify-center items-center ${week_blue} cursor-pointer`} onClick={() => setScheduleType("week")}>주</div>
+          <div className="relative ml-4 w-36 h-10 flex items-center rounded-full border border-gray-300 bg-white mt-5 overflow-hidden">
+            {/* 🔵 움직이는 배경 */}
+            <motion.div
+              layout
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 12,
+              }}
+              className="absolute top-0 w-1/2 h-full bg-blue-500 rounded-full z-0"
+              style={{
+                left: scheduleType === "month" ? 0 : "50%",
+              }}
+            />
+
+            {/* 버튼들 */}
+            <div className="relative z-10 flex w-full h-full">
+              <div
+                className="w-1/2 flex justify-center items-center cursor-pointer text-sm"
+                onClick={() => setScheduleType("month")}
+              >
+                <span className={scheduleType === "month" ? "text-white" : "text-gray-500"}>
+                  월
+                </span>
+              </div>
+              <div
+                className="w-1/2 flex justify-center items-center cursor-pointer text-sm"
+                onClick={() => setScheduleType("week")}
+              >
+                <span className={scheduleType === "week" ? "text-white" : "text-gray-500"}>
+                  주
+                </span>
+              </div>
+            </div>
           </div>
           {
             isModify ? (
@@ -113,11 +145,11 @@ export default function Schedule() {
           scheduleType === 'month'
             ? <MonthSchedule />
             : <WeekSchedule
-                isModify={isModify}
-                selectedCard={selectedCard}
-                entries={entries}
-                setEntries={setEntries}
-              />
+              isModify={isModify}
+              selectedCard={selectedCard}
+              entries={entries}
+              setEntries={setEntries}
+            />
         }
 
         <div className="mt-4 border-t border-gray-300 pt-4">

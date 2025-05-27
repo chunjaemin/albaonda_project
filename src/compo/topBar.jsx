@@ -8,13 +8,13 @@ export default function TopBar() {
   let currentSpaceName = name;
   return (
     <>
-      <div className="relative w-full aspect-[10/1] flex items-center border-b border-gray-300">
-        <div className="relative w-[5%] ml-4 cursor-pointer" onClick={doSwitch}>
-          <div className='w-full aspect-[8/1] bg-black'></div>
-          <div className='w-full aspect-[8/1] bg-black mt-1'></div>
-          <div className='w-full aspect-[8/1] bg-black mt-1'></div>
+      <div className="relative w-full aspect-[10/1] flex items-center bg-gray-100/70">
+        <div className="relative w-5 ml-4 cursor-pointer flex flex-col justify-center gap-[4.5px]" onClick={doSwitch}>
+          <div className="w-full h-[2px] bg-black "></div>
+          <div className="w-full h-[2px] bg-black "></div>
+          <div className="w-full h-[2px] bg-black "></div>
         </div>
-        <div className="m-4">{currentSpaceName}</div>
+        <div className="m-4 text-lg">{currentSpaceName}</div>
       </div>
     </>
   )

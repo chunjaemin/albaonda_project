@@ -1,4 +1,4 @@
-// ✅ 기존 import 및 함수 정의 위쪽 생략 없이 유지
+// ✅ WeekSchedule 전체 코드: 시간표 UI + 드래그 + 선택 기능 완전 통합
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
@@ -17,7 +17,6 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
     const [h, m] = t.split(":").map(Number);
     return h * 60 + m;
   };
-
   const formatTime = (minutes) => {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -34,6 +33,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const dates = getWeekDates(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
   const colorPalette = ['bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-sky-100', 'bg-pink-100', 'bg-purple-100', 'bg-indigo-100'];
+  const hours = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`);
 
   const nameColorMap = useMemo(() => {
     const countMap = {};
@@ -48,34 +48,66 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
     }, {});
   }, [entries]);
 
-  const hours = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`);
-
-  const renderPreview = (rowIndex, colIndex) => {
-    if (!isModify || !draggingEntryId || !hoverTarget) return null;
-    const targetTime = parseTime(hoverTarget.hour);
-    const draggingEntry = entries.find(e => e.id === draggingEntryId);
-    if (!draggingEntry) return null;
-    const duration = parseTime(draggingEntry.endTime) - parseTime(draggingEntry.startTime);
-    const previewStart = targetTime;
-    const previewEnd = targetTime + duration;
-    const hour = rowIndex * 30;
-    const isTargetCell =
-      dates[colIndex].year === hoverTarget.dateObj.year &&
-      dates[colIndex].month === hoverTarget.dateObj.month &&
-      dates[colIndex].day === hoverTarget.dateObj.day &&
-      hour >= previewStart && hour < previewEnd;
-
-    if (!isTargetCell) return null;
-
-    const newDate = `${hoverTarget.dateObj.year}-${String(hoverTarget.dateObj.month).padStart(2, '0')}-${String(hoverTarget.dateObj.day).padStart(2, '0')}`;
-    const overlap = entries.some(e => {
-      if (e.id === draggingEntryId || e.date !== newDate) return false;
-      const existingStart = parseTime(e.startTime);
-      const existingEnd = parseTime(e.endTime);
-      return previewStart < existingEnd && previewEnd > existingStart;
+  const handleSaveSelectedCells = () => {
+    if (!selectedCard || selectedCells.length === 0) return;
+    const groupedByDate = selectedCells.reduce((acc, { date, hour }) => {
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(hour);
+      return acc;
+    }, {});
+    const newEntries = [];
+    Object.entries(groupedByDate).forEach(([date, hourList]) => {
+      const sorted = hourList.map(h => parseTime(h)).sort((a, b) => a - b);
+      let start = sorted[0], prev = sorted[0];
+      for (let i = 1; i <= sorted.length; i++) {
+        const cur = sorted[i];
+        if (cur !== prev + 30) {
+          const newEntry = {
+            id: `entry-${Date.now()}-${Math.random()}`,
+            name: selectedCard.name,
+            date,
+            startTime: formatTime(start),
+            endTime: formatTime(prev + 30),
+            ...selectedCard.payInfo
+          };
+          const overlap = entries.some(e =>
+            e.date === date &&
+            parseTime(e.startTime) < parseTime(newEntry.endTime) &&
+            parseTime(e.endTime) > parseTime(newEntry.startTime)
+          );
+          if (!overlap) newEntries.push(newEntry);
+          start = cur;
+        }
+        prev = cur;
+      }
     });
+    setEntries(prev => [...prev, ...newEntries]);
+    setSelectedCells([]);
+  };
 
-    return { overlap };
+  const toggleCell = (dateObj, hour) => {
+    const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+    const key = `${dateStr}-${hour}`;
+    setSelectedCells(prev =>
+      prev.some(c => c.key === key)
+        ? prev.filter(c => c.key !== key)
+        : [...prev, { key, date: dateStr, hour }]
+    );
+  };
+  const toggleCellByDrag = (dateObj, hour) => {
+    const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+    const key = `${dateStr}-${hour}`;
+    setSelectedCells(prev =>
+      prev.find(c => c.key === key)
+        ? prev
+        : [...prev, { key, date: dateStr, hour }]
+    );
+  };
+
+  const handleMouseEnter = (dateObj, hour) => {
+    if (!isModify) return;
+    if (draggingEntryId) setHoverTarget({ dateObj, hour });
+    else if (isDraggingEmptyBlock) toggleCellByDrag(dateObj, hour);
   };
 
   const handleMouseUp = () => {
@@ -86,23 +118,16 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
         const newStart = parseTime(hoverTarget.hour);
         const newEnd = newStart + duration;
         const newDate = `${hoverTarget.dateObj.year}-${String(hoverTarget.dateObj.month).padStart(2, '0')}-${String(hoverTarget.dateObj.day).padStart(2, '0')}`;
-
         const overlap = entries.some(e => {
           if (e.id === draggingEntryId || e.date !== newDate) return false;
           const existingStart = parseTime(e.startTime);
           const existingEnd = parseTime(e.endTime);
           return newStart < existingEnd && newEnd > existingStart;
         });
-
         if (!overlap) {
           const updated = entries.map((entry) =>
             entry.id === draggingEntryId
-              ? {
-                  ...entry,
-                  date: newDate,
-                  startTime: formatTime(newStart),
-                  endTime: formatTime(newEnd),
-                }
+              ? { ...entry, date: newDate, startTime: formatTime(newStart), endTime: formatTime(newEnd) }
               : entry
           );
           setEntries(updated);
@@ -116,21 +141,39 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
     clearTimeout(pressTimer);
   };
 
+
   const findEntryForCell = (dateObj, hour) => {
     const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
-    return entries.find((entry) => {
+    return entries.find(entry => {
       if (entry.date !== dateStr) return false;
       const startTotal = parseTime(entry.startTime);
       const endTotal = parseTime(entry.endTime);
-      const [cellHour, cellMin] = hour.split(':').map(Number);
-      const cellTotal = cellHour * 60 + cellMin;
+      const cellTotal = parseTime(hour);
       return cellTotal >= startTotal && cellTotal < endTotal;
     });
   };
 
-  const renderCellClass = (entry) => {
-    return `${entry ? `${nameColorMap[entry.name]} text-gray-700 font-semibold border-b-0` : ''} ` +
-      `${entry?.id === longPressEntryId ? 'animate-wiggle scale-105 ring-2 ring-blue-400' : ''}`;
+  const renderPreview = (rowIndex, colIndex) => {
+    if (!isModify || !draggingEntryId || !hoverTarget) return false;
+    const targetTime = parseTime(hoverTarget.hour);
+    const draggingEntry = entries.find(e => e.id === draggingEntryId);
+    const duration = parseTime(draggingEntry.endTime) - parseTime(draggingEntry.startTime);
+    const previewStart = targetTime, previewEnd = targetTime + duration;
+    const hour = rowIndex * 30;
+    const isTargetCell =
+      dates[colIndex].year === hoverTarget.dateObj.year &&
+      dates[colIndex].month === hoverTarget.dateObj.month &&
+      dates[colIndex].day === hoverTarget.dateObj.day &&
+      hour >= previewStart && hour < previewEnd;
+    if (!isTargetCell) return false;
+    const newDate = `${hoverTarget.dateObj.year}-${String(hoverTarget.dateObj.month).padStart(2, '0')}-${String(hoverTarget.dateObj.day).padStart(2, '0')}`;
+    const overlap = entries.some(e => {
+      if (e.id === draggingEntryId || e.date !== newDate) return false;
+      const existingStart = parseTime(e.startTime);
+      const existingEnd = parseTime(e.endTime);
+      return previewStart < existingEnd && previewEnd > existingStart;
+    });
+    return { overlap };
   };
 
   const draggingEntry = entries.find(e => e.id === draggingEntryId);
@@ -140,41 +183,59 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   return (
     <div className="p-4 mb-4 relative select-none" onMouseUp={handleMouseUp}>
       {isModify && draggingEntry && (
-        <div className={`fixed pointer-events-none z-50 px-2 py-1 text-xs rounded shadow-lg transition-transform duration-75 ${dragColor}`} style={{ top: mousePos.y + 10, left: mousePos.x + 10, opacity: 0.85 }}>
+        <div className={`fixed pointer-events-none z-50 px-2 py-1 text-xs rounded shadow-lg ${dragColor}`} style={{ top: mousePos.y + 10, left: mousePos.x + 10 }}>
           {draggingLabel}
         </div>
       )}
-
-      <div className={`w-full aspect-[10/1] flex justify-between items-center border-b border-gray-400 pt-3 pb-3`}>
-        <ChevronLeftIcon className='h-[100%] aspect-[1/1] cursor-pointer' onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() - 7)))} />
+      <div className="w-full aspect-[10/1] flex justify-between items-center border-b border-gray-400 py-3">
+        <ChevronLeftIcon className="h-6 w-6 cursor-pointer" onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() - 7)))} />
         <div>{dates[0].month}월 {dates[0].day}일 - {dates[6].month}월 {dates[6].day}일, {dates[0].year}년</div>
-        <ChevronRightIcon className='h-[100%] aspect-[1/1] cursor-pointer' onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() + 7)))} />
+        <ChevronRightIcon className="h-6 w-6 cursor-pointer" onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() + 7)))} />
       </div>
-
+      <div className="grid grid-cols-8 text-center">
+        <div className="border-b py-2 font-bold">시간</div>
+        {days.map((day, i) => (
+          <div key={day} className="border-b py-2">
+            <div className="font-bold">{day}</div>
+            <div className="text-sm text-gray-500">{dates[i].day}</div>
+          </div>
+        ))}
+      </div>
       <div className="grid grid-cols-8">
         {hours.map((hour, rowIndex) => (
           <div key={`row-${rowIndex}`} className="contents">
-            <div className="text-[11px] flex items-center justify-center border-b border-l border-r border-gray-400">
+            <div className="text-[11px] flex items-center justify-center border border-gray-300">
               {rowIndex % 2 === 0 ? `${parseInt(hour.split(':')[0])}:00` : ''}
             </div>
             {dates.map((dateObj, colIndex) => {
               const entry = findEntryForCell(dateObj, hour);
+              const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+              const key = `${dateStr}-${hour}`;
+              const isSelected = selectedCells.some(c => c.key === key);
               const preview = renderPreview(rowIndex, colIndex);
               const isPreview = !!preview;
               const isOverlap = preview?.overlap;
-              const dragColor = draggingEntryId ? nameColorMap[entries.find(e => e.id === draggingEntryId)?.name] : '';
-              const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
-              const key = `${dateStr}-${hour}`;
+              const showText = entry && entry.startTime === hour;
 
+              let borderClass = "";
+              if (entry && draggingEntryId && entry.id === draggingEntryId) {
+                const current = parseTime(hour);
+                const start = parseTime(entry.startTime);
+                const end = parseTime(entry.endTime);
+
+                if (current === start) {
+                  borderClass = "border-t-2 border-l-2 border-r-2 border-blue-500 border-dashed animate-wiggle";
+                } else if (current === end - 30) {
+                  borderClass = "border-b-2 border-l-2 border-r-2 border-blue-500 border-dashed animate-wiggle";
+                } else if (current > start && current < end) {
+                  borderClass = "border-l-2 border-r-2 border-blue-500 border-dashed animate-wiggle";
+                }
+              }
+              
               return (
                 <div
                   key={`cell-${rowIndex}-${colIndex}`}
-                  onMouseEnter={() => {
-                    if (!isModify) return;
-                    if (draggingEntryId) {
-                      setHoverTarget({ dateObj, hour });
-                    }
-                  }}
+                  onMouseEnter={() => handleMouseEnter(dateObj, hour)}
                   onMouseDown={() => {
                     if (!isModify) return;
                     if (entry) {
@@ -183,13 +244,23 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                         setLongPressEntryId(entry.id);
                       }, 600);
                       setPressTimer(timer);
+                    } else {
+                      toggleCell(dateObj, hour);
+                      setIsDraggingEmptyBlock(true);
                     }
                   }}
                   onMouseUp={() => clearTimeout(pressTimer)}
                   onMouseLeave={() => clearTimeout(pressTimer)}
-                  className={`relative aspect-[2/1] flex items-center justify-center text-[11px] border-b border-gray-400 border-r border-gray-400 ${renderCellClass(entry)} ${isOverlap ? 'bg-red-200 opacity-70' : ''}`}
+
+                  // 시간표 각 셀에 css주는 부분 
+                  className={`relative aspect-[2/1] flex items-center justify-center text-[11px] border border-gray-300 
+                    ${entry ? `${nameColorMap[entry.name]} text-gray-700 font-semibold` : ''}
+                    ${isSelected && !entry ? 'bg-blue-200/70' : ''}
+                    ${isOverlap ? 'bg-red-200 opacity-70' : ''}
+                    ${borderClass }
+                  `}
                 >
-                  {entry?.startTime === hour && <span>{entry.name}</span>}
+                  {showText && <span>{entry.name}</span>}
                   {isModify && isPreview && !isOverlap && (
                     <div className={`absolute inset-0 ${dragColor} opacity-60 z-10 rounded-md scale-95 animate-pulse`} />
                   )}
@@ -199,6 +270,13 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
           </div>
         ))}
       </div>
+      {isModify && (
+        <div className="flex justify-end mt-4">
+          <button onClick={handleSaveSelectedCells} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            선택 일정 저장
+          </button>
+        </div>
+      )}
     </div>
   );
 }

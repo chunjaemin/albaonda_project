@@ -1,14 +1,15 @@
+// 전체 코드: teamMonthSchedule.jsx
 import { useState, useMemo } from 'react';
 import {
   generateCalendarDates,
   getCurrentYear,
   getCurrentMonth,
-} from '../js/scheduleDate.js';
+} from '../js/teamScheduleDate.js';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { getUserColor } from '../js/colorUtils';
 import '../App.css';
 
-export default function teemMonthSchedule({ isEditing, scheduleData }) {
+export default function TeamMonthSchedule({ isEditing, scheduleData }) {
   const [currentYear, setCurrentYear] = useState(getCurrentYear());
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
 
@@ -39,7 +40,11 @@ export default function teemMonthSchedule({ isEditing, scheduleData }) {
         const [row, col] = block.split('-').map(Number);
         const blockDate = new Date(weekKey);
         blockDate.setDate(blockDate.getDate() + col);
-        return blockDate.getDate() === day && blockDate.getMonth() + 1 === month;
+        return (
+          blockDate.getDate() === day &&
+          blockDate.getMonth() + 1 === month &&
+          blockDate.getFullYear() === year
+        );
       });
 
       if (hasSchedule) {
@@ -98,12 +103,13 @@ export default function teemMonthSchedule({ isEditing, scheduleData }) {
         if (index % 7 === 0) {
           return (
             <div key={index} className="flex">
-              {dates.slice(index, index + 7).map(({ day, isCurrentMonth }) => {
-                const initials = getUserInitialsForDate(currentYear, currentMonth, day);
+              {dates.slice(index, index + 7).map(({ day, isCurrentMonth, year, month }) => {
+                const initials = getUserInitialsForDate(year, month, day);
+                const showTooltip = initials.length > 2;
 
                 return (
                   <div
-                    key={`${currentYear}-${currentMonth}-${day}`}
+                    key={`${year}-${month}-${day}`}
                     className="relative w-1/7 aspect-[1/1] border-r border-b border-gray-200 px-2 py-2"
                   >
                     <div className={`absolute top-[4%] left-[6%] text-sm ${isCurrentMonth ? 'text-black' : 'text-gray-400'}`}>
@@ -112,17 +118,30 @@ export default function teemMonthSchedule({ isEditing, scheduleData }) {
 
                     {/* 사용자 이니셜 동그라미 */}
                     {!isEditing && initials.length > 0 && (
-                      <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
-                        {initials.map((user, i) => (
+                      <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 group">
+                        {initials.slice(0, 2).map((user, i) => (
                           <div
                             key={i}
-                            className="w-5 h-5 text-xs rounded-full text-white flex items-center justify-center"
+                            className={`w-5 h-5 text-xs rounded-full text-white flex items-center justify-center ${isCurrentMonth ? '' : 'opacity-40'}`}
                             style={{ backgroundColor: getUserColor(user) }}
                             title={user}
                           >
                             {user[0]}
                           </div>
                         ))}
+                        {initials.length > 2 && (
+                          <>
+                            <span className="text-xs ml-1">...</span>
+                            <div className="absolute top-full left-0 mt-1 p-2 bg-white border rounded shadow-lg z-50 hidden group-hover:block">
+                              {initials.sort((a, b) => a.localeCompare(b)).map(name => (
+                                <div key={name} className="flex items-center gap-1 text-xs text-black whitespace-nowrap">
+                                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getUserColor(name) }}></div>
+                                  {name}
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>

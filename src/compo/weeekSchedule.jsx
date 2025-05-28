@@ -193,9 +193,9 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
         <ChevronRightIcon className="h-6 w-6 cursor-pointer" onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() + 7)))} />
       </div>
       <div className="grid grid-cols-8 text-center">
-        <div className="border-b py-2 font-bold">시간</div>
+        <div className="py-2 font-bold">시간</div>
         {days.map((day, i) => (
-          <div key={day} className="border-b py-2">
+          <div key={day} className="py-2">
             <div className="font-bold">{day}</div>
             <div className="text-sm text-gray-500">{dates[i].day}</div>
           </div>
@@ -217,6 +217,9 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
               const isOverlap = preview?.overlap;
               const showText = entry && entry.startTime === hour;
 
+              const isFirstRow = rowIndex === 0;
+              const isFirstCol = colIndex === 0;
+
               let borderClass = "";
               if (entry && draggingEntryId && entry.id === draggingEntryId) {
                 const current = parseTime(hour);
@@ -224,14 +227,22 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                 const end = parseTime(entry.endTime);
 
                 if (current === start) {
-                  borderClass = "border-t-2 border-l-2 border-r-2 border-blue-500 border-dashed animate-wiggle";
+                  borderClass = "border-t-2 border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle";
                 } else if (current === end - 30) {
-                  borderClass = "border-b-2 border-l-2 border-r-2 border-blue-500 border-dashed animate-wiggle";
+                  borderClass = "border-b-2 border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle";
                 } else if (current > start && current < end) {
-                  borderClass = "border-l-2 border-r-2 border-blue-500 border-dashed animate-wiggle";
+                  borderClass = "border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle";
                 }
+              } else {
+                // ✅ 내부 셀은 border-right & border-bottom만 적용, 첫 열/행은 left/top 추가
+                borderClass = `
+            ${isFirstRow ? 'border-t' : ''}
+            ${isFirstCol ? 'border-l' : ''}
+            border-r border-b
+            border-gray-300
+          `;
               }
-              
+
               return (
                 <div
                   key={`cell-${rowIndex}-${colIndex}`}
@@ -252,13 +263,12 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                   onMouseUp={() => clearTimeout(pressTimer)}
                   onMouseLeave={() => clearTimeout(pressTimer)}
 
-                  // 시간표 각 셀에 css주는 부분 
-                  className={`relative aspect-[2/1] flex items-center justify-center text-[11px] border border-gray-300 
-                    ${entry ? `${nameColorMap[entry.name]} text-gray-700 font-semibold` : ''}
-                    ${isSelected && !entry ? 'bg-blue-200/70' : ''}
-                    ${isOverlap ? 'bg-red-200 opacity-70' : ''}
-                    ${borderClass }
-                  `}
+                  className={`relative aspect-[2/1] flex items-center justify-center text-[11px]  
+              ${entry ? `${nameColorMap[entry.name]} text-gray-700 font-semibold border-b-0 border-t-0` : ''}
+              ${isSelected && !entry ? 'bg-blue-200/70' : ''}
+              ${isOverlap ? 'bg-red-200 opacity-70' : ''}
+              ${borderClass}
+            `}
                 >
                   {showText && <span>{entry.name}</span>}
                   {isModify && isPreview && !isOverlap && (
@@ -270,6 +280,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
           </div>
         ))}
       </div>
+
       {isModify && (
         <div className="flex justify-end mt-4">
           <button onClick={handleSaveSelectedCells} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">

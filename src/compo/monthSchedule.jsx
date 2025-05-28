@@ -70,18 +70,18 @@ export default function MonthSchedule() {
     const dates = getDates(year, month);
     return (
       <div className="w-full">
-        <div className="grid grid-cols-7 text-sm font-medium text-center mb-2">
+        <div className="grid grid-cols-7 font-medium text-center mb-2 mt-2 text-xs">
           {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
             <div key={d}>{d}</div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-px">
+        <div className="grid grid-cols-7">
           {dates.map(({ day, isCurrentMonth, fullDate }) => {
             const works = getWorkByDate(fullDate);
             const visible = works.slice(0, 2);
             const hiddenCount = works.length > 2 ? works.length - 2 : 0;
             return (
-              <div key={fullDate} className="aspect-square border border-gray-200 p-1 text-xs">
+              <div key={fullDate} className="aspect-square border-b border-gray-200 p-1 text-sm">
                 <div className={isCurrentMonth ? 'text-black' : 'text-gray-400'}>{day}</div>
                 {visible.map(({ name }, idx) => (
                   <div
@@ -110,7 +110,7 @@ export default function MonthSchedule() {
             if (swiperRef.current) swiperRef.current.slidePrev();
           }}
         />
-        <div className='text-base'>{currentYear}년 {currentMonth}월</div>
+        <div className='text-base text-lg'>{currentYear}년 {currentMonth}월</div>
         <ChevronRightIcon className='h-6 w-6 cursor-pointer'
           onClick={() => {
             if (swiperRef.current) swiperRef.current.slideNext();

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CalendarIcon, ClipboardIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import {
+  CalendarIcon,
+  ClipboardIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
 import "../App.css";
 
 export default function BottomNavbarTeamSpace() {
@@ -36,7 +40,7 @@ export default function BottomNavbarTeamSpace() {
 
   return (
     <div
-      className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[80px] bg-white flex items-center justify-center gap-[90px] shadow-md border-t border-gray-300 transition-transform duration-300 z-10 ${
+      className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[80px] bg-white flex items-center justify-around shadow-md border-t border-gray-300 transition-transform duration-300 z-10 ${
         showNavbar ? "translate-y-0" : "translate-y-full"
       }`}
     >
@@ -47,10 +51,10 @@ export default function BottomNavbarTeamSpace() {
         return (
           <div
             key={path}
-            className="h-[80%] flex flex-col justify-center items-center cursor-pointer"
+            className="w-[80px] h-full flex flex-col items-center justify-center cursor-pointer"
             onClick={() => navigate(path)}
           >
-            <Icon className={`h-[60%] mb-1 ${colorClass}`} />
+            <Icon className={`h-10 w-10 mb-1 ${colorClass}`} />
             <p className={`text-xs ${colorClass}`}>{label}</p>
           </div>
         );

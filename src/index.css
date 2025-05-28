@@ -188,3 +188,13 @@
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
+.schedule-cell {
+  cursor: crosshair;
+  transition: border 0.2s;
+}
+.schedule-cell:hover {
+  border: 2px dashed #60a5fa; /* Tailwind blue-400 */
+}
+.user-name:hover {
+  cursor: pointer;
+}

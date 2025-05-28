@@ -126,10 +126,10 @@ export default function UserInfo() {
                   {isAdmin && user.role !== '관리자' && (
                     <button
                       onClick={() => handleDelete(user.id)}
-                      className="absolute top-1/2 right-2 -translate-y-1/2 text-red-500 hover:text-red-700"
+                      className="absolute top-1/2 right-7 -translate-y-1/2 text-red-500 hover:text-red-700"
                       title="삭제"
                     >
-                      <TrashIcon className="w-5 h-5" />
+                      <TrashIcon className="w-6 h-6" />
                     </button>
                   )}
                 </div>

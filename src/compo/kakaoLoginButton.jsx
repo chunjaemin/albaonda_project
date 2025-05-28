@@ -33,6 +33,7 @@ export default function KakaoLoginButton() {
                 window.Kakao.API.request({
                     url: '/v2/user/me',
                     success: function (res) {
+                        // console.log(res)
                         setUser({
                             id: "user001",              
                             name: res.kakao_account.profile.nickname,   

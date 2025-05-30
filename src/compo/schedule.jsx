@@ -97,7 +97,7 @@ export default function Schedule() {
                 stiffness: 100,
                 damping: 12,
               }}
-              className="absolute top-0 w-1/2 h-full bg-blue-500 rounded-full z-0"
+              className="absolute top-0 w-1/2 h-full bg-green-400 rounded-full z-0"
               style={{
                 left: scheduleType === "month" ? 0 : "50%",
               }}
@@ -130,13 +130,13 @@ export default function Schedule() {
                   setIsModify(false);
                   setSelectedCard(null);
                 }}
-                className="px-4 py-2 text-sm font-semibold text-blue-500 bg-blue-100 hover:bg-blue-200 active:scale-95 transition-all rounded-xl shadow"
+                className="px-4 py-2 text-sm font-semibold text-green-500 bg-green-100 hover:bg-blue-200 active:scale-95 transition-all rounded-xl shadow"
               >
                 취소
               </button>
               <button
                 onClick={() => setIsModify(false)}
-                className="px-4 py-2 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all rounded-xl shadow"
+                className="px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 active:scale-95 transition-all rounded-xl shadow"
               >
                 저장
               </button>
@@ -147,7 +147,7 @@ export default function Schedule() {
                 setIsModify(true);
                 setScheduleType('week');
               }}
-              className="mt-8 mr-4 px-4 py-2 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 active:scale-95 transition-all rounded-full shadow"
+              className="mt-8 mr-4 px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 active:scale-95 transition-all rounded-full shadow"
             >
               수정
             </button>

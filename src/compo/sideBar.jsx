@@ -1,13 +1,19 @@
 import { useSidebarStateStore, useCurrentSpaceNameStore, useCurrentTeamIdStore } from '../js/store';
 import { dummyUserData } from '../js/dummyUserData';
 import { dummyTeamSchedule1, dummyTeamSchedule2 } from '../js/dummyTeamData';
+import { PencilIcon, PlusIcon } from '@heroicons/react/24/outline';
 import '../App.css';
 import { useNavigate } from 'react-router-dom';
+import {useState} from 'react'
 
 export default function SideBar() {
   const { isSidebar } = useSidebarStateStore();
   const { setName } = useCurrentSpaceNameStore();
   const { setId } = useCurrentTeamIdStore();
+
+  const [newTeamName, setNewTeamName] = useState(''); // ✅ 새 팀 이름
+  const [isAdding, setIsAdding] = useState(false); // ✅ 추가 중 상태
+
   const navigate = useNavigate();
   const userData = dummyUserData;
   const teamData1 = dummyTeamSchedule1;
@@ -40,7 +46,7 @@ export default function SideBar() {
     }
   ];
 
-  
+
   const handleClick = (team) => {
     if (!team.teamId) {//개인스페이스 일때 
       setName(team.name);
@@ -50,6 +56,22 @@ export default function SideBar() {
       setId(team.teamId);
       navigate("/teamspace/teamSchedule");
     }
+  };
+
+  const addNewTeam = () => {
+    const trimmed = newTeamName.trim();
+    if (!trimmed) return;
+    const colors = ['bg-red-400', 'bg-yellow-400', 'bg-green-400', 'bg-blue-400', 'bg-purple-400'];
+    const newTeam = {
+      id: Date.now(),
+      icon: trimmed[0],
+      color: colors[Math.floor(Math.random() * colors.length)],
+      name: trimmed,
+      editing: false,
+    };
+    setTeams(prev => [...prev, newTeam]);
+    setNewTeamName('');
+    setIsAdding(false);
   };
 
   return (
@@ -75,7 +97,7 @@ export default function SideBar() {
       {/* 팀 공간 목록 */}
       <div className="px-4 flex flex-col gap-3 cursor-pointer">
         {teamArr.map((team, index) => (
-          <div key={index} className="flex items-center gap-2 text-sm" onClick={()=>{handleClick(team)}}>
+          <div key={index} className="flex items-center gap-2 text-sm" onClick={() => { handleClick(team) }}>
             <span className={`w-5 h-5 text-xs rounded-sm text-white flex items-center justify-center font-semibold ${team.color}`}>
               {team.initial}
             </span>
@@ -83,6 +105,30 @@ export default function SideBar() {
           </div>
         ))}
       </div>
+
+
+      {/* 새 팀 추가 UI */}
+      {isAdding ? (
+        <div className="flex gap-2 px-4 py-2">
+          <input
+            value={newTeamName}
+            onChange={e => setNewTeamName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addNewTeam()}
+            className="border px-2 py-1 text-sm flex-1 rounded"
+            placeholder="새 팀 이름"
+            autoFocus
+          />
+          <button onClick={addNewTeam} className="text-blue-500 hover:underline text-sm">확인</button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setIsAdding(true)}
+          className="flex items-center gap-1 text-blue-500 text-sm hover:underline px-4 py-2"
+        >
+          <PlusIcon className="w-4 h-4" />
+          새 팀 만들기
+        </button>
+      )}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// ✅ WeekSchedule 전체 코드: 시간표 UI + 드래그 + 선택 기능 완전 통합
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
@@ -17,6 +16,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
     const [h, m] = t.split(":").map(Number);
     return h * 60 + m;
   };
+
   const formatTime = (minutes) => {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -33,7 +33,35 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const dates = getWeekDates(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
   const colorPalette = ['bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-sky-100', 'bg-pink-100', 'bg-purple-100', 'bg-indigo-100'];
-  const hours = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`);
+
+  const currentWeekDates = useMemo(() => {
+    return dates.map(d => `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`);
+  }, [dates]);
+
+  const hours = useMemo(() => {
+    const all = Array.from({ length: 49 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`);
+    if (isModify || entries.length === 0) return all;
+
+    // ✅ 여기에 바로 넣어!
+    if (isModify || entries.length === 0) return all.slice(18, 34);
+
+    const currentWeekEntries = entries.filter(e => currentWeekDates.includes(e.date));
+    if (currentWeekEntries.length === 0) return all.slice(18, 34);
+
+    const allTimes = currentWeekEntries.flatMap(e => {
+      const start = parseTime(e.startTime);
+      const end = parseTime(e.endTime);
+      return [start, end];
+    });
+
+    const minTime = Math.min(...allTimes);
+    const maxTime = Math.max(...allTimes);
+
+    const startIdx = Math.max(Math.floor(minTime / 30) - 1, 0);
+    const endIdx = Math.min(Math.ceil(maxTime / 30) + 1, all.length);
+
+    return all.slice(startIdx, endIdx);
+  }, [isModify, entries, currentWeekDates]);
 
   const nameColorMap = useMemo(() => {
     const countMap = {};

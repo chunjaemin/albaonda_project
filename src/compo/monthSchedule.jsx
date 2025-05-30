@@ -70,9 +70,9 @@ export default function MonthSchedule() {
     const dates = getDates(year, month);
     return (
       <div className="w-full">
-        <div className="grid grid-cols-7 font-medium text-center mb-2 mt-2 text-xs">
-          {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-            <div key={d}>{d}</div>
+        <div className="grid grid-cols-7 font-medium text-center mb-2 text-xs">
+          {["일", "월", "화", "수", "목", "금", "토"].map((d, i) => (
+            <div key={d} className={`${i % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}>{d}</div>
           ))}
         </div>
         <div className="grid grid-cols-7">
@@ -104,7 +104,7 @@ export default function MonthSchedule() {
 
   return (
     <div className='relative w-full pl-4 pr-4'>
-      <div className='w-full aspect-[10/1] flex justify-between items-center border-b border-gray-300 pt-3 pb-3'>
+      <div className='w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3'>
         <ChevronLeftIcon className='h-6 w-6 cursor-pointer'
           onClick={() => {
             if (swiperRef.current) swiperRef.current.slidePrev();

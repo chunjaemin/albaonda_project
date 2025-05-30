@@ -210,12 +210,14 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
 
   return (
     <div className="p-4 mb-4 relative select-none" onMouseUp={handleMouseUp}>
-      {isModify && draggingEntry && (
-        <div className={`fixed pointer-events-none z-50 px-2 py-1 text-xs rounded shadow-lg ${dragColor}`} style={{ top: mousePos.y + 10, left: mousePos.x + 10 }}>
-          {draggingLabel}
+      {true && (
+        <div className={`fixed w-[95%] sm:max-w-[600px] top-2 left-1/2 -translate-x-1/2 mb-2 px-4 py-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-sm text-center font-semibold transition-opacity duration-500 ease-out ${
+          isModify ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}>
+          ✏️ 수정 모드입니다. 블록을 편집하거나 꾹 눌러서 이동할 수 있어요.
         </div>
       )}
-      <div className="w-full aspect-[10/1] flex justify-between items-center border-b border-gray-400 py-3">
+      <div className="w-full aspect-[10/1] flex justify-between items-center border-gray-300 py-3">
         <ChevronLeftIcon className="h-6 w-6 cursor-pointer" onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() - 7)))} />
         <div>{dates[0].month}월 {dates[0].day}일 - {dates[6].month}월 {dates[6].day}일, {dates[0].year}년</div>
         <ChevronRightIcon className="h-6 w-6 cursor-pointer" onClick={() => setCurrentDate(prev => new Date(prev.setDate(prev.getDate() + 7)))} />
@@ -223,16 +225,16 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
       <div className="grid grid-cols-8 text-center">
         <div className="py-2 font-bold">시간</div>
         {days.map((day, i) => (
-          <div key={day} className="py-2">
-            <div className="font-bold">{day}</div>
-            <div className="text-sm text-gray-500">{dates[i].day}</div>
+          <div key={day} className="">
+            <div className={`font-bold ${i % 2 === 0 ? 'bg-green-200': 'bg-green-100'}`}>{day}</div>
+            <div className={`text-sm text-gray-500 ${i % 2 === 0 ? 'bg-green-200': 'bg-green-100'}`}>{dates[i].day}</div>
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-8">
+      <div className={`grid grid-cols-8 ${isModify ? 'border-3 border-dotted border-green-500' : ''}`}>
         {hours.map((hour, rowIndex) => (
           <div key={`row-${rowIndex}`} className="contents">
-            <div className="text-[11px] flex items-center justify-center border border-gray-300">
+            <div className={`text-[11px] flex items-center justify-center ${rowIndex % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}>
               {rowIndex % 2 === 0 ? `${parseInt(hour.split(':')[0])}:00` : ''}
             </div>
             {dates.map((dateObj, colIndex) => {
@@ -265,7 +267,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                 // ✅ 내부 셀은 border-right & border-bottom만 적용, 첫 열/행은 left/top 추가
                 borderClass = `
             ${isFirstRow ? 'border-t' : ''}
-            ${isFirstCol ? 'border-l' : ''}
+            ${isFirstCol ? 'border-l-none' : ''}
             border-r border-b
             border-gray-300
           `;
@@ -311,7 +313,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
 
       {isModify && (
         <div className="flex justify-end mt-4">
-          <button onClick={handleSaveSelectedCells} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button onClick={handleSaveSelectedCells} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
             선택 일정 저장
           </button>
         </div>

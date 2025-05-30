@@ -59,3 +59,32 @@
   animation: wiggle 1.2s ease-in-out infinite;
   transform-origin: center;
 }
+
+@keyframes fadePulse {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.arrow-fade {
+  animation: fadePulse 5s ease-in-out infinite;
+  opacity: 0;
+}
+
+.clip-triangle {
+  clip-path: polygon(
+    0% 0%, 40% 50%, 0% 100%, 60% 100%, 100% 50%, 60% 0%
+  );
+}

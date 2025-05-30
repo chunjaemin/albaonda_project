@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import '../App.css'
+import '../css/keyframe.css'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { useNavigate } from 'react-router-dom'
 
 export default function Landing() {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 })
+  const { ref: cardRef, inView: cardInView } = useInView({ triggerOnce: true, threshold: 0.5 });
+  const { ref: sectionRef, inView: sectionInView } = useInView({ triggerOnce: true, threshold: 0.5 });
   const navigate = useNavigate()
 
   const springTransition = {
@@ -30,7 +32,7 @@ export default function Landing() {
         <span className='text-4xl'>이렇게</span>{' '}
         <motion.span
           className="text-green-500 inline-block"
-          animate={{ rotate: [0, -5, 5, -3, 3, 0, 0, 0, 0], y: [0, -4, -5, -4, 0, 0, 0]}}
+          animate={{ rotate: [0, -5, 5, -3, 3, 0, 0, 0, 0], y: [0, -4, -5, -4, 0, 0, 0] }}
           transition={{
             duration: 1,
             repeat: 1,
@@ -53,38 +55,68 @@ export default function Landing() {
         </button>
       </div>
 
-      {/* 💬 말풍선 카드 (좌→우→좌 정렬) */}
-      <div className="mt-50 flex flex-col gap-6 w-full max-w-md">
-        {/* 왼쪽 정렬 */}
-        <div className="w-full flex justify-start">
+      <h3 className="mt-40 text-2xl font-semibold text-gray-800">
+        이런 사람들을 위한 앱이에요
+      </h3>
+
+      <motion.div
+        ref={cardRef}
+        className="mt-10 flex flex-col gap-6 w-full max-w-md"
+        initial="hidden"
+        animate={cardInView ? "visible" : "hidden"}
+        variants={{
+          visible: { transition: { staggerChildren: 0.3 } },
+          hidden: {},
+        }}
+      >
+        {/* 왼쪽 정렬 카드 */}
+        <motion.div
+          className="w-full flex justify-start"
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
+          }}
+        >
           <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-md w-72 transform -rotate-2 translate-y-[5px]">
             <p className="text-sm text-gray-700 leading-relaxed">
               문자, 카톡, 전화받을 필요 없는 시간표…<br />
               하나로 정리하고 싶어요
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* 오른쪽 정렬 */}
-        <div className="w-full flex justify-end">
-          <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-md w-72 transform rotate-1">
+        {/* 오른쪽 정렬 카드 */}
+        <motion.div
+          className="w-full flex justify-end"
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
+          }}
+        >
+          <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-md w-80 transform rotate-1">
             <p className="text-sm text-gray-700 leading-relaxed">
               알바 일정이 자주 바뀌는데,<br />
               매번 엑셀이나 단톡방에 다시 적는 것도 일이에요
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* 왼쪽 정렬 */}
-        <div className="w-full flex justify-start">
+        {/* 왼쪽 정렬 카드 */}
+        <motion.div
+          className="w-full flex justify-start"
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
+          }}
+        >
           <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-md w-72 transform -rotate-3 translate-y-[5px]">
             <p className="text-sm text-gray-700 leading-relaxed">
               주휴, 야근수당에 4대보험까지…<br />
               시급 계산할 때마다 진짜 골치 아파요
             </p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* 설명 텍스트 */}
       <div className="mt-50 text-center">
@@ -95,11 +127,11 @@ export default function Landing() {
       </div>
 
       {/* ✅ 애니메이션 카드 섹션 */}
-      <div ref={ref} className="relative w-full flex justify-center mt-20 h-72">
+      <div ref={sectionRef} className="relative w-full flex justify-center mt-20 h-72">
         <motion.div
           className="absolute z-30 w-[30%] aspect-[1/1.3] bg-green-50 rounded-2xl shadow-md p-6 text-left"
           initial={{ x: 0, opacity: 0 }}
-          animate={inView ? { x: -170, y: 20, opacity: 1, rotate: -15 } : {}}
+          animate={sectionInView ? { x: -170, y: 20, opacity: 1, rotate: -15 } : {}}
           transition={{ ...springTransition }}
         >
           <span className="text-2xl mb-2 block">📅</span>
@@ -113,7 +145,7 @@ export default function Landing() {
         <motion.div
           className="absolute z-20 w-[30%] aspect-[1/1.3]  bg-green-50 rounded-2xl shadow-md p-6 text-left"
           initial={{ scale: 0.9, opacity: 0 }}
-          animate={inView ? { scale: 1, opacity: 1 } : {}}
+          animate={sectionInView ? { scale: 1, opacity: 1 } : {}}
           transition={{ ...springTransition }}
         >
           <span className="text-2xl mb-2 block">🧮</span>
@@ -127,7 +159,7 @@ export default function Landing() {
         <motion.div
           className="absolute z-10 w-[30%] aspect-[1/1.3] bg-green-50 rounded-2xl shadow-md p-6 text-left"
           initial={{ x: 0, opacity: 0, rotate: 0 }}
-          animate={inView ? { x: 170, y: 20, opacity: 1, rotate: 15 } : {}}
+          animate={sectionInView ? { x: 170, y: 20, opacity: 1, rotate: 15 } : {}}
           transition={{ ...springTransition }}
         >
           <span className="text-2xl mb-2 block">🤝</span>
@@ -151,34 +183,52 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* 카드 1 - 왼쪽 정렬 */}
-        <div className="w-full flex justify-start">
-          <div className="flex flex-col items-start">
-            <div className="w-50 h-70 bg-gray-200 rounded-xl shadow-md" />
+        <div className="relative w-full max-w-md flex flex-col gap-8 items-center px-4">
+          {/* 카드 1 */}
+          <div className="w-full flex justify-start relative">
+            <div className="w-40 h-40 bg-gray-200 rounded-xl shadow-md z-10" />
           </div>
-        </div>
 
-        {/* 카드 2 - 오른쪽 정렬 */}
-        <div className="w-full flex justify-end">
-          <div className="flex flex-col items-end">
-            <div className="w-50 h-70 bg-gray-200 rounded-xl shadow-md" />
+          {/* 화살표 그룹 */}
+          <div className="absolute right-0 top-[90px] z-0 flex flex items-center rotate-[45deg]">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="w-15 h-15 bg-green-300/50 clip-triangle arrow-fade"
+                style={{ animationDelay: `${i * 0.05}s` }}
+              />
+            ))}
           </div>
-        </div>
 
-        {/* 카드 3 - 왼쪽 정렬 */}
-        <div className="w-full flex justify-start">
-          <div className="flex flex-col items-start">
-            <div className="w-50 h-70 bg-gray-200 rounded-xl shadow-md" />
+          {/* 카드 2 */}
+          <div className="w-full flex justify-end relative">
+            <div className="w-40 h-40 bg-gray-200 rounded-xl shadow-md z-10" />
+          </div>
+
+          {/* 화살표 그룹 */}
+          <div className="absolute left-[100px] top-[400px] z-0 flex flex items-center rotate-[135deg]">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="w-15 h-15 bg-green-300/50 clip-triangle arrow-fade duration-100"
+                style={{ animationDelay: `${i * 0.05 + 0.3}s` }}
+              />
+            ))}
+          </div>
+
+          {/* 카드 3 */}
+          <div className="w-full flex justify-start relative">
+            <div className="w-40 h-40 bg-gray-200 rounded-xl shadow-md z-10" />
           </div>
         </div>
 
         {/* CTA 버튼 */}
-        <div className="mt-10 text-center">
-          <p className="text-md font-semibold text-gray-800">
+        <div className="mt-30 mb-20 text-center">
+          <p className="text-2xl font-semibold text-gray-800">
             당신의 시간을 아껴주는 똑똑한 선택
           </p>
           <button
-            className="mt-4 bg-green-400 text-white px-6 py-2 rounded-full hover:bg-green-500 transition"
+            className="mt-4 bg-green-400 text-white px-20 py-3 rounded-xl hover:bg-green-500 transition"
             onClick={() => navigate('/home')}
           >
             지금 시작하기

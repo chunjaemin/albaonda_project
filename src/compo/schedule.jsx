@@ -107,7 +107,7 @@ export default function Schedule() {
             <div className="relative z-10 flex w-full h-full">
               <div
                 className="w-1/2 flex justify-center items-center cursor-pointer text-sm"
-                onClick={() => setScheduleType("month")}
+                onClick={() => { setScheduleType("month"); setIsModify(false); }}
               >
                 <span className={scheduleType === "month" ? "text-white" : "text-gray-500"}>
                   월
@@ -195,9 +195,9 @@ export default function Schedule() {
                     selectedCard?.name === item.name ? null : item
                   )
                 }
-                className={`flex justify-between items-center p-4 rounded-xl shadow cursor-pointer ml-4 mr-4 transition-all
-      ${selectedCard?.name === item.name ? 'bg-blue-100' : 'bg-white'}
-    `}
+                className={`flex justify-between items-center p-4 rounded-xl shadow hover:shadow-md cursor-pointer ml-4 mr-4 transition-all 
+                  ${selectedCard?.name === item.name ? 'bg-blue-100' : 'bg-white'}
+                `}
               >
                 <div>
                   <p className="text-sm font-semibold text-gray-800">{item.name}</p>
@@ -210,7 +210,7 @@ export default function Schedule() {
             ))}
             <button
               onClick={() => setShowModal(true)}
-              className="py-6 text-center text-2xl text-gray-400 bg-gray-100 rounded-xl shadow ml-4 mr-4"
+              className="py-6 text-center text-2xl text-gray-400 bg-gray-100 rounded-xl shadow ml-4 mr-4 hover:bg-gray-200 cursor-pointer"
             >
               ＋
             </button>

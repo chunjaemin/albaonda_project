@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
+import { colorPalette } from '../js/colorPalette.js';
 
 export default function WeekSchedule({ isModify, entries, setEntries, selectedCard }) {
   const [currentDate, setCurrentDate] = useState(getCurrentStartOfWeek());
@@ -11,6 +12,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   const [isDraggingEmptyBlock, setIsDraggingEmptyBlock] = useState(false);
   const [longPressEntryId, setLongPressEntryId] = useState(null);
   const [pressTimer, setPressTimer] = useState(null);
+  const [selectedEntryId, setSelectedEntryId] = useState(null); // 삭제용
 
   const parseTime = (t) => {
     const [h, m] = t.split(":").map(Number);
@@ -32,7 +34,6 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
 
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const dates = getWeekDates(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
-  const colorPalette = ['bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-sky-100', 'bg-pink-100', 'bg-purple-100', 'bg-indigo-100'];
 
   const currentWeekDates = useMemo(() => {
     return dates.map(d => `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`);
@@ -211,9 +212,8 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   return (
     <div className="p-4 mb-4 relative select-none" onMouseUp={handleMouseUp}>
       {true && (
-        <div className={`fixed w-[95%] sm:max-w-[600px] top-2 left-1/2 -translate-x-1/2 mb-2 px-4 py-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-sm text-center font-semibold transition-opacity duration-500 ease-out ${
-          isModify ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}>
+        <div className={`fixed w-[95%] z-5 sm:max-w-[600px] top-2 left-1/2 -translate-x-1/2 mb-2 px-4 py-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-sm text-center font-semibold transition-opacity duration-500 ease-out ${isModify ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}>
           ✏️ 수정 모드입니다. 블록을 편집하거나 꾹 눌러서 이동할 수 있어요.
         </div>
       )}
@@ -226,8 +226,10 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
         <div className="py-2 font-bold">시간</div>
         {days.map((day, i) => (
           <div key={day} className="">
-            <div className={`font-bold ${i % 2 === 0 ? 'bg-green-200': 'bg-green-100'}`}>{day}</div>
-            <div className={`text-sm text-gray-500 ${i % 2 === 0 ? 'bg-green-200': 'bg-green-100'}`}>{dates[i].day}</div>
+            <div className={`font-bold`}>{day}</div>
+            <div className={`text-sm text-gray-500`}>{dates[i].day}</div>
+            {/* <div className={`font-bold ${i % 2 === 0 ? 'bg-green-200': 'bg-green-100'}`}>{day}</div>
+            <div className={`text-sm text-gray-500 ${i % 2 === 0 ? 'bg-green-200': 'bg-green-100'}`}>{dates[i].day}</div> */}
           </div>
         ))}
       </div>
@@ -256,12 +258,15 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                 const start = parseTime(entry.startTime);
                 const end = parseTime(entry.endTime);
 
+                // ✅ bg-color 클래스 → border-color 클래스 변환
+                const baseColorClass = nameColorMap[entry.name]; // ex: "bg-rose-100"
+                const borderColorClass = baseColorClass.replace("bg-", "border-").replace("-100", "-300");
                 if (current === start) {
-                  borderClass = "border-t-2 border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle";
+                  borderClass = `border-t-2 border-l-2 border-r-2 ${borderColorClass} border-dashed animate-wiggle`;
                 } else if (current === end - 30) {
-                  borderClass = "border-b-2 border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle";
+                  borderClass = `border-b-2 border-l-2 border-r-2 ${borderColorClass} border-dashed animate-wiggle`;
                 } else if (current > start && current < end) {
-                  borderClass = "border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle";
+                  borderClass = `border-l-2 border-r-2 ${borderColorClass} border-dashed animate-wiggle`;
                 }
               } else {
                 // ✅ 내부 셀은 border-right & border-bottom만 적용, 첫 열/행은 left/top 추가
@@ -279,18 +284,34 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                   onMouseEnter={() => handleMouseEnter(dateObj, hour)}
                   onMouseDown={() => {
                     if (!isModify) return;
+
                     if (entry) {
                       const timer = setTimeout(() => {
-                        setDraggingEntryId(entry.id);
+                        setDraggingEntryId(entry.id); // ⏱ 길게 누르면 이동 시작
                         setLongPressEntryId(entry.id);
-                      }, 600);
+                      }, 600); // 600ms 이상 누르면 이동모드
                       setPressTimer(timer);
                     } else {
                       toggleCell(dateObj, hour);
                       setIsDraggingEmptyBlock(true);
                     }
                   }}
-                  onMouseUp={() => clearTimeout(pressTimer)}
+                  onMouseUp={(e) => {
+                    clearTimeout(pressTimer);
+
+                    if ((e.target).closest("button")) {
+                      return;
+                    }
+                    // 👇 길게 누르지 않았고 entry가 있다면 삭제 선택 모드로 전환
+                    if (entry && longPressEntryId === null) {
+                      setSelectedEntryId(prev => prev === entry.id ? null : entry.id);
+                    }
+
+                    setIsDraggingEmptyBlock(false);
+                    setDraggingEntryId(null);
+                    setHoverTarget(null);
+                    setLongPressEntryId(null);
+                  }}
                   onMouseLeave={() => clearTimeout(pressTimer)}
 
                   className={`relative aspect-[2/1] flex items-center justify-center text-[11px]  
@@ -301,8 +322,30 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
             `}
                 >
                   {showText && <span>{entry.name}</span>}
+                  {isModify && entry && selectedEntryId === entry.id && entry.startTime === hour && (
+                    <div className="absolute -top-5 -right-5 z-30 group">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log("🔥 삭제 실행");
+                          setEntries(prev => prev.filter(e => String(e.id) !== String(selectedEntryId)));
+                          setSelectedEntryId(null);
+                        }}
+                        className="bg-red-600 text-white p-1 rounded-full shadow hover:bg-red-700 transition"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                      <div className="absolute -top-8 right-1/2 translate-x-1/2 whitespace-nowrap text-xs bg-gray-800 text-white px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                        삭제
+                      </div>
+                    </div>
+                  )}
                   {isModify && isPreview && !isOverlap && (
                     <div className={`absolute inset-0 ${dragColor} opacity-60 z-10 rounded-md scale-95 animate-pulse`} />
+                  )}
+                  {isModify && entry && selectedEntryId === entry.id && (
+                    <div className="absolute inset-0 bg-red-300 opacity-40 z-0 rounded" />
                   )}
                 </div>
               );

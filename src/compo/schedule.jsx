@@ -3,6 +3,8 @@ import '../App.css';
 
 import MonthSchedule from './monthSchedule.jsx';
 import WeekSchedule from './weeekSchedule.jsx';
+import ScheduleCardInfoModal from './scheduleCardInfoModal.jsx';
+
 import { NumericFormat } from 'react-number-format';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -14,6 +16,8 @@ export default function Schedule() {
   const [isModify, setIsModify] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [selectedCardInfoModal, setSelectedCardInfoModal] = useState(null);
+  const [editingCard, setEditingCard] = useState(null); // 현재 수정 중인 카드
 
   const [entries, setEntries] = useState(dummySchedule.entries);
   const user = useAuthStore((s) => s.user);
@@ -75,7 +79,7 @@ export default function Schedule() {
     };
 
     setScheduleItems(prev => [...prev, newCard]);
-    setSelectedCard(newCard);
+    // setSelectedCard(newCard); //카드 선택 부분인데 만들 때 선택되도록 하면 화면 표현이 어색해서 일단 주석 
     setNewItemName('');
     setNewItemWage('');
     setShowModal(false);
@@ -88,70 +92,69 @@ export default function Schedule() {
     <>
       <div className='w-full'>
         <div className='w-full flex justify-between'>
-          <div className="relative ml-4 w-36 h-10 flex items-center rounded-full border border-gray-300 bg-white mt-5 overflow-hidden">
-            {/* 🔵 움직이는 배경 */}
+          <div className="relative ml-4 w-36 h-10 flex items-center rounded-full shadow shadow-sm bg-white mt-5 overflow-hidden">
             <motion.div
               layout
-              transition={{
-                type: "",
-                stiffness: 100,
-                damping: 12,
-              }}
+              transition={{ type: '', stiffness: 100, damping: 12 }}
               className="absolute top-0 w-1/2 h-full bg-green-400 rounded-full z-0"
-              style={{
-                left: scheduleType === "month" ? 0 : "50%",
-              }}
+              style={{ left: scheduleType === "month" ? 0 : "50%" }}
             />
-
-            {/* 버튼들 */}
             <div className="relative z-10 flex w-full h-full">
               <div
                 className="w-1/2 flex justify-center items-center cursor-pointer text-sm"
                 onClick={() => { setScheduleType("month"); setIsModify(false); }}
               >
-                <span className={scheduleType === "month" ? "text-white" : "text-gray-500"}>
-                  월
-                </span>
+                <span className={scheduleType === "month" ? "text-white" : "text-gray-500"}>월</span>
               </div>
               <div
                 className="w-1/2 flex justify-center items-center cursor-pointer text-sm"
                 onClick={() => setScheduleType("week")}
               >
-                <span className={scheduleType === "week" ? "text-white" : "text-gray-500"}>
-                  주
-                </span>
+                <span className={scheduleType === "week" ? "text-white" : "text-gray-500"}>주</span>
               </div>
             </div>
           </div>
-          {isModify ? (
-            <div className="flex justify-center items-center gap-4 mt-8 mr-4">
-              <button
-                onClick={() => {
-                  setIsModify(false);
-                  setSelectedCard(null);
-                }}
-                className="px-4 py-2 text-sm font-semibold text-green-500 bg-green-100 hover:bg-blue-200 active:scale-95 transition-all rounded-xl shadow"
-              >
-                취소
-              </button>
-              <button
-                onClick={() => setIsModify(false)}
-                className="px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 active:scale-95 transition-all rounded-xl shadow"
-              >
-                저장
-              </button>
-            </div>
-          ) : (
-            <button
+
+          <div className="relative flex items-center justify-end gap-4 mt-8 mr-4 min-w-[160px]">
+            <AnimatePresence>
+              {isModify && (
+                <motion.div
+                  key="cancel-wrapper"
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ type: "tween", ease: "easeInOut", duration: 0.25 }}
+                  className="inline-block"
+                >
+                  <button
+                    onClick={() => {
+                      setIsModify(false);
+                      setSelectedCard(null);
+                    }}
+                    className="px-4 py-2 text-sm font-semibold text-green-500 bg-green-100 hover:bg-green-200 active:scale-95 transition-all rounded-xl shadow"
+                  >
+                    취소
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
               onClick={() => {
-                setIsModify(true);
-                setScheduleType('week');
+                if (isModify) setIsModify(false);
+                else {
+                  setIsModify(true);
+                  setScheduleType('week');
+                }
               }}
-              className="mt-8 mr-4 px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 active:scale-95 transition-all rounded-full shadow"
+              className="px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 active:scale-95 transition-all rounded-full shadow"
             >
-              수정
-            </button>
-          )}
+              {isModify ? '저장' : '수정'}
+            </motion.button>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -190,11 +193,15 @@ export default function Schedule() {
             {scheduleItems.map((item, index) => (
               <div
                 key={index}
-                onClick={() =>
-                  setSelectedCard(
-                    selectedCard?.name === item.name ? null : item
-                  )
-                }
+                onClick={() => {
+                  if (isModify) {
+                    setSelectedCard(
+                      selectedCard?.name === item.name ? null : item
+                    );
+                  } else {
+                    setSelectedCardInfoModal(item); // 💡 모달 열기
+                  }
+                }}
                 className={`flex justify-between items-center p-4 rounded-xl shadow hover:shadow-md cursor-pointer ml-4 mr-4 transition-all 
                   ${selectedCard?.name === item.name ? 'bg-blue-100' : 'bg-white'}
                 `}
@@ -204,7 +211,12 @@ export default function Schedule() {
                   <p className="text-xs text-gray-500 mt-1">시급: {item.payInfo.hourPrice.toLocaleString()}원</p>
                 </div>
                 {isModify && (
-                  <button className="text-xs text-blue-600 hover:underline">수정</button>
+                  <button
+                    className="text-xs text-blue-600 hover:underline"
+                    onClick={() => setEditingCard(item)} // ✨ 클릭 시 해당 카드 수정 모드
+                  >
+                    수정
+                  </button>
                 )}
               </div>
             ))}
@@ -218,6 +230,14 @@ export default function Schedule() {
           <div className="w-full h-[300px]"></div>
         </div>
       </div>
+
+      {/* 하단 스케쥴 카드뷰 디테일 창 */}
+      {selectedCardInfoModal && (
+        <ScheduleCardInfoModal
+          card={selectedCardInfoModal}
+          onClose={() => setSelectedCardInfoModal(null)}
+        />
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50" onClick={() => setShowModal(false)}>
@@ -248,7 +268,7 @@ export default function Schedule() {
                 <button
                   key={key}
                   onClick={() => toggleAllowance(key)}
-                  className={`rounded p-2 text-center border ${value ? 'bg-blue-400 text-white' : 'bg-gray-100 text-gray-400 border-gray-200'}`}
+                  className={`rounded p-2 text-center border ${value ? 'bg-green-400 text-white' : 'bg-gray-100 text-gray-400 border-gray-200'}`}
                 >
                   {key} {value ? 'O' : 'X'}
                 </button>
@@ -263,10 +283,102 @@ export default function Schedule() {
                 취소
               </button>
               <button
-                className="w-[48%] py-2 bg-blue-400 text-white rounded"
+                className="w-[48%] py-2 bg-green-400 text-white rounded"
                 onClick={handleAddCard}
               >
                 확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 카드뷰 수정모달 */}
+      {editingCard && (
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50" onClick={() => setEditingCard(null)}>
+          <div
+            className="bg-white w-[90%] max-w-sm rounded-xl p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-center text-lg font-bold mb-4">일정 수정</h2>
+
+            <input
+              type="text"
+              value={editingCard.name}
+              onChange={(e) =>
+                setEditingCard({ ...editingCard, name: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded p-2 mb-3"
+            />
+
+            <NumericFormat
+              thousandSeparator
+              suffix=" 원"
+              allowNegative={false}
+              placeholder="시급 입력"
+              className="w-full border border-gray-300 rounded p-2 mb-3"
+              value={editingCard.payInfo.hourPrice}
+              onValueChange={(values) =>
+                setEditingCard({
+                  ...editingCard,
+                  payInfo: {
+                    ...editingCard.payInfo,
+                    hourPrice: parseInt(values.value || "0"),
+                  },
+                })
+              }
+            />
+
+            <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+              {["주휴수당", "야근수당", "초과수당", "휴일근무수당"].map((label) => {
+                const keyMap = {
+                  주휴수당: "wHoliday",
+                  야근수당: "night",
+                  초과수당: "overtime",
+                  휴일근무수당: "Holiday",
+                };
+                const key = keyMap[label];
+                const current = editingCard.payInfo[key];
+                return (
+                  <button
+                    key={label}
+                    onClick={() =>
+                      setEditingCard({
+                        ...editingCard,
+                        payInfo: {
+                          ...editingCard.payInfo,
+                          [key]: !current,
+                        },
+                      })
+                    }
+                    className={`rounded p-2 cursor-pointer ${current ? "bg-green-400 text-white hover:bg-green-500 " : "bg-gray-100 text-gray-400 hover:bg-gray-200 "
+                      }`}
+                  >
+                    {label} {current ? "O" : "X"}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                className="w-[48%] py-2 bg-gray-300 text-white rounded cursor-pointer hover:bg-gray-400"
+                onClick={() => setEditingCard(null)}
+              >
+                취소
+              </button>
+              <button
+                className="w-[48%] py-2 bg-green-400 text-white rounded cursor-pointer hover:bg-green-500"
+                onClick={() => {
+                  setScheduleItems((prev) =>
+                    prev.map((item) =>
+                      item.name === editingCard.name ? editingCard : item
+                    )
+                  );
+                  setEditingCard(null);
+                }}
+              >
+                저장
               </button>
             </div>
           </div>

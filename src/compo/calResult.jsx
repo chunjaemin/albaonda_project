@@ -34,7 +34,7 @@ export default function CalResult() {
   return (
     <div className="w-full h-full min-h-screen flex flex-col justify-center items-center px-6 text-center bg-white">
       <p className="text-2xl font-medium text-gray-800 mb-2">
-        <span className="text-green-400">{workDays}일</span> 동안의 <span className="text-green-400">{name}</span>님의 급여는
+        <span className="text-green-500">{workDays}일</span> 동안의 <span className="text-green-500">{name}</span>님의 급여는
       </p>
       <div className="flex items-center justify-center mb-6">
         <span className="text-green-400 font-semibold text-2xl mr-1">

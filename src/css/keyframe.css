@@ -16,8 +16,14 @@
   }
 }
 
-.bg-gradient-animation {
+/* .bg-gradient-animation {
   background: linear-gradient(-45deg, #c7d2fe, #bfdbfe, #fbcfe8, #fde68a);
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease-in-out infinite;
+} */
+
+.bg-gradient-animation {
+  background: linear-gradient(-45deg, #fbcfe8, #d1fae5, #fde68a, #a7f3d0, #93c5fd);
   background-size: 400% 400%;
   animation: gradientMove 15s ease-in-out infinite;
 }

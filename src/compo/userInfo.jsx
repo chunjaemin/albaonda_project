@@ -6,6 +6,7 @@ import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import '../App.css';
 import '../index.css';
 import SideBarTeamSpace from './sideBarTeamSpace.jsx';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function UserInfo() {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -97,7 +98,12 @@ export default function UserInfo() {
 
   return (
     <>
-      <div className="user-info-section space-y-6">
+      <motion.div
+        className="user-info-section space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
         {roleOrder.map((role) => (
           <div key={role}>
             <div className="flex justify-between items-center mb-2">
@@ -126,7 +132,7 @@ export default function UserInfo() {
                   {isAdmin && user.role !== '관리자' && (
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // ✅ 상위 onClick 방지
+                        e.stopPropagation();
                         handleDelete(user.id);
                       }}
                       className="absolute top-1/2 right-7 -translate-y-1/2 text-red-500 hover:text-red-700"
@@ -140,7 +146,7 @@ export default function UserInfo() {
             </div>
           </div>
         ))}
-      </div>
+      </motion.div>
 
       {selectedUser && (
         <UserDetail

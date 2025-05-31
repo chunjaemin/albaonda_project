@@ -10,11 +10,27 @@ import { BookmarkIcon } from "@heroicons/react/24/solid";
 import { useSidebarStateStore } from "../js/store.js";
 import SideBarTeamSpace from "./sideBarTeamSpace.jsx";
 import NoticeModal from "./noticeModal";
+import { AnimatePresence, motion } from "framer-motion";
+
+const listVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 10 },
+};
 
 export default function NoticeBoard() {
   const { isSidebar, doSwitch } = useSidebarStateStore();
 
-  const [isAdmin, setIsAdmin] = useState(true); // 🔐 관리자 여부
+  const [isAdmin, setIsAdmin] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
   const [editorType, setEditorType] = useState("공지사항");
   const [editingItem, setEditingItem] = useState(null);
@@ -83,11 +99,15 @@ export default function NoticeBoard() {
       )}
       <SideBarTeamSpace isOpen={isSidebar} onClose={doSwitch} />
 
-      <div className="p-4 space-y-6">
-        {/* 공지사항 */}
+      <motion.div
+        className="p-4 space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+      >
         <div className="box notice-box">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">📢 공지사항</h2>
+            <h2 className="text-lg font-semibold">공지사항</h2>
             {isAdmin && (
               <PlusIcon
                 className="h-6 w-6 text-gray-600 cursor-pointer"
@@ -96,69 +116,87 @@ export default function NoticeBoard() {
             )}
           </div>
 
-          <ul className="item-list">
-            {sortItems(notices).map((item) => (
-              <li
-                key={item.id}
-                className="item-box group text-sm flex justify-between items-center"
-                onClick={() => setSelectedItem(item)}
-              >
-                <div>
-                  {item.pinned && (
-                    <BookmarkIcon className="h-4 w-4 inline-block text-red-500 mr-1" />
-                  )}
-                  <strong>{item.title}</strong>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {formatDate(item.createdAt)}
-                  </p>
-                </div>
-
-                {isAdmin && (
-                  <div
-                    className="flex items-center gap-2 ml-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <PencilIcon
-                      className="h-4 w-4 text-gray-500 cursor-pointer"
-                      onClick={() => openEditor("공지사항", item)}
-                    />
-                    <TrashIcon
-                      className="h-4 w-4 text-red-400 cursor-pointer"
-                      onClick={() => handleDelete("공지사항", item.id)}
-                    />
+          <motion.ul
+            className="item-list"
+            variants={listVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <AnimatePresence>
+              {sortItems(notices).map((item) => (
+                <motion.li
+                  key={item.id}
+                  className="item-box group text-sm flex justify-between items-center"
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  onClick={() => setSelectedItem(item)}
+                >
+                  <div>
+                    {item.pinned && (
+                      <BookmarkIcon className="h-4 w-4 inline-block text-red-500 mr-1" />
+                    )}
+                    <strong>{item.title}</strong>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {formatDate(item.createdAt)}
+                    </p>
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
+
+                  {isAdmin && (
+                    <div
+                      className="flex items-center gap-2 ml-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <PencilIcon
+                        className="h-4 w-4 text-gray-500 cursor-pointer"
+                        onClick={() => openEditor("공지사항", item)}
+                      />
+                      <TrashIcon
+                        className="h-4 w-4 text-red-400 cursor-pointer"
+                        onClick={() => handleDelete("공지사항", item.id)}
+                      />
+                    </div>
+                  )}
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </motion.ul>
         </div>
 
-        {/* 건의사항 */}
         <div className="box suggestion-box">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">💡 건의사항</h2>
+            <h2 className="text-lg font-semibold">건의사항</h2>
             {isAdmin && (
               <PlusIcon
                 className="h-6 w-6 text-gray-600 cursor-pointer"
                 onClick={() => openEditor("건의사항")}
               />
             )}
-            
           </div>
-          <ul className="item-list">
-            {sortItems(suggestions).map((item) => (
-              <li
-                key={item.id}
-                className="item-box group text-sm flex justify-between items-center"
-                onClick={() => setSelectedSuggestionItem(item)}
-              >
-                <div>
-                  <strong>{item.title}</strong>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {formatDate(item.createdAt)}
-                  </p>
-                </div>
-                {!isAdmin && (
+          <motion.ul
+            className="item-list"
+            variants={listVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <AnimatePresence>
+              {sortItems(suggestions).map((item) => (
+                <motion.li
+                  key={item.id}
+                  className="item-box group text-sm flex justify-between items-center"
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  onClick={() => setSelectedSuggestionItem(item)}
+                >
+                  <div>
+                    <strong>{item.title}</strong>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {formatDate(item.createdAt)}
+                    </p>
+                  </div>
                   <div
                     className="flex items-center gap-2 ml-2"
                     onClick={(e) => e.stopPropagation()}
@@ -172,20 +210,22 @@ export default function NoticeBoard() {
                       onClick={() => handleDelete("건의사항", item.id)}
                     />
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </motion.ul>
         </div>
 
-        {showEditor && (
-          <NoticeEditor
-            type={editorType}
-            onClose={() => setShowEditor(false)}
-            onSubmit={handleSubmit}
-            editingItem={editingItem}
-          />
-        )}
+        <AnimatePresence>
+          {showEditor && (
+            <NoticeEditor
+              type={editorType}
+              onClose={() => setShowEditor(false)}
+              onSubmit={handleSubmit}
+              editingItem={editingItem}
+            />
+          )}
+        </AnimatePresence>
 
         {selectedItem && (
           <NoticeModal
@@ -204,7 +244,7 @@ export default function NoticeBoard() {
             content={selectedSuggestionItem.content}
           />
         )}
-      </div>
+      </motion.div>
     </>
   );
 }

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PencilIcon, PlusIcon } from '@heroicons/react/24/outline'; // ✅ PlusIcon 추가
-import { useSidebarStateStore } from '../js/teamStore';
-import { useCurrentSpaceNameStore } from '../js/teamStore';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { useSidebarStateStore, useCurrentSpaceNameStore } from '../js/teamStore';
 import '../App.css';
 
 export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
@@ -15,9 +14,10 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
     { id: 2, icon: '맘', color: 'bg-yellow-400', name: '맘스터치 팀공간', editing: false },
     { id: 3, icon: '버', color: 'bg-red-400', name: '버거킹 팀공간', editing: false }
   ]);
+
   const [editInputs, setEditInputs] = useState({});
-  const [isAdding, setIsAdding] = useState(false); // ✅ 추가 중 상태
-  const [newTeamName, setNewTeamName] = useState(''); // ✅ 새 팀 이름
+  const [isAdding, setIsAdding] = useState(false);
+  const [newTeamName, setNewTeamName] = useState('');
 
   useEffect(() => {
     if (!isOpen) {
@@ -27,11 +27,6 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
       setNewTeamName('');
     }
   }, [isOpen]);
-
-  const toggleEdit = (id, currentName) => {
-    setEditInputs(prev => ({ ...prev, [id]: currentName }));
-    setTeams(prev => prev.map(team => team.id === id ? { ...team, editing: true } : team));
-  };
 
   const saveEdit = (id) => {
     const newName = editInputs[id];
@@ -61,29 +56,39 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
     setIsAdding(false);
   };
 
+  const handleTeamClick = (team) => {
+    if (team.id === 1) navigate('/home/schedule');
+    else navigate('/teamspace/teamschedule');
+    setSelectedTeamName(team.name);
+    onClose();
+  };
+
   return (
-    <div className={`absolute top-0 left-0 h-full w-[280px] bg-white z-30 shadow-md transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      <div className="p-4 border-b">
-        {/* 유저 정보 */}
-        <div className="flex">
-          <div className="flex flex-col">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-gray-400 rounded-full text-white flex items-center justify-center font-bold">천</div>
-              <div className="ml-3 text-xl font-medium">천재민</div>
-            </div>
-            <div className="mt-2">
-              <div className="text-xs text-gray-600">chunjaemin@naver.com</div>
-              <div className="mt-1 text-xs text-blue-500 cursor-pointer hover:underline" onClick={onShowMyInfo}>내 정보 &gt;</div>
-            </div>
+    <div className={`absolute top-0 left-0 w-[260px] h-full bg-white shadow-[inset_-2px_0_4px_rgba(0,0,0,0.05)] border-r border-gray-200 z-50 transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+
+      {/* 프로필 상단 */}
+      <div className="p-5 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
+            천
+          </div>
+          <div className="flex flex-col text-sm">
+            <span className="text-gray-800 font-semibold">천재민</span>
+            <span className="text-gray-500 text-xs">chunjaemin@naver.com</span>
+            <button onClick={onShowMyInfo} className="text-blue-500 hover:underline text-xs mt-1 text-left">내 정보 &gt;</button>
           </div>
         </div>
       </div>
 
       {/* 팀 목록 */}
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex flex-col gap-2">
         {teams.map(team => (
-          <div key={team.id} className="flex items-center gap-2">
-            <div className={`w-6 h-6 ${team.color} text-white text-xs rounded flex items-center justify-center`}>
+          <div
+            key={team.id}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition cursor-pointer hover:bg-gray-100 ${selectedTeamName === team.name ? 'bg-blue-50 font-semibold' : ''}`}
+            onClick={() => handleTeamClick(team)}
+          >
+            <div className={`w-6 h-6 rounded-md flex items-center justify-center text-white text-xs font-bold ${team.color}`}>
               {team.icon}
             </div>
             {team.editing ? (
@@ -91,37 +96,29 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
                 <input
                   value={editInputs[team.id] || ''}
                   onChange={e => setEditInputs(prev => ({ ...prev, [team.id]: e.target.value }))}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') saveEdit(team.id);
-                  }}
-                  className="border px-1 py-0.5 text-sm w-32 rounded"
+                  onKeyDown={e => e.key === 'Enter' && saveEdit(team.id)}
+                  className="border px-2 py-1 text-sm w-32 rounded"
                 />
                 <button onClick={() => saveEdit(team.id)} className="text-blue-500 text-sm hover:underline">확인</button>
               </>
             ) : (
-              <span
-                className="text-sm flex-1 truncate cursor-pointer hover:underline"
-                onClick={() => {
-                  if (team.id === 1) navigate('/home/schedule');
-                  else if (team.id === 2) navigate('/teamspace/teamschedule');
-                  setSelectedTeamName(team.name);
-                  onClose();
-                }}
-              >
+              <span className="flex-1 truncate">
                 {team.name}
               </span>
             )}
           </div>
         ))}
+      </div>
 
-        {/* 새 팀 추가 UI */}
+      {/* 새 팀 추가 */}
+      <div className="p-4 border-t border-gray-200 mt-auto">
         {isAdding ? (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <input
               value={newTeamName}
               onChange={e => setNewTeamName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addNewTeam()}
-              className="border px-2 py-1 text-sm flex-1 rounded"
+              className="border border-gray-300 text-sm px-2 py-1 rounded w-full"
               placeholder="새 팀 이름"
               autoFocus
             />

@@ -57,7 +57,7 @@ function App() {
 
   return (
     <>
-      <div className="relative w-full sm:max-w-[600px] mx-auto overflow-x-hidden font-['Pretendard-Regular']">
+      <div className="relative w-full sm:max-w-[600px] mx-auto overflow-x-hidden font-['Pretendard-Regular'] [box-shadow:inset_-1px_0_4px_rgba(0,0,0,0.1),inset_1px_0_4px_rgba(0,0,0,0.1)]">
         <Routes>
           <Route path="/landing" element={<Landing />} />
           <Route path="/login" element={<ProtectedRoute guestOnly={false}><Login /></ProtectedRoute>} />

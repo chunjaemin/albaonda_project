@@ -20,12 +20,12 @@ export default function TopBarTeamSpace() {
   };
 
   return (
-    <div className="relative w-full aspect-[10/1] flex items-center border-b border-gray-300 px-4">
+    <div className="relative w-full aspect-[10/1] flex items-center bg-gray-100/70">
       {/* 햄버거 버튼 */}
-      <div className="w-[5%] mr-4 cursor-pointer" onClick={doSwitch}>
-        <div className="w-full aspect-[8/1] bg-black"></div>
-        <div className="w-full aspect-[8/1] bg-black mt-1"></div>
-        <div className="w-full aspect-[8/1] bg-black mt-1"></div>
+      <div className="relative w-5 ml-4 cursor-pointer flex flex-col justify-center gap-[4.5px]" onClick={doSwitch}>
+        <div className="w-full h-[2px] bg-black "></div>
+        <div className="w-full h-[2px] bg-black "></div>
+        <div className="w-full h-[2px] bg-black "></div>
       </div>
 
       {/* 팀 이름 또는 수정 입력 */}
@@ -45,7 +45,7 @@ export default function TopBarTeamSpace() {
           </>
         ) : (
           <>
-            <span className="text-lg font-medium truncate">{selectedTeamName || '맘스터치 팀공간'}</span>
+            <span className="text-lg font-medium truncate ml-4">{selectedTeamName || '맘스터치 팀공간'}</span>
             {isAdmin && (
               <PencilIcon
                 className="w-5 h-5 text-gray-500 cursor-pointer hover:text-black"

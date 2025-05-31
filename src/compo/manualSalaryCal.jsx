@@ -25,16 +25,40 @@ export default function ManualSalaryCal() {
   };
 
   return (
-    <div className="p-8 w-full mx-auto bg-white shadow rounded-md">
+    <div className="p-8 w-full mx-auto bg-white">
       <label className="block mb-2 font-semibold">시급</label>
-      <input
-        type="number"
+      <NumericFormat
         value={wage}
-        onChange={(e) => setWage(e.target.value)}
+        onValueChange={({ value }) => setWage(value)}
+        thousandSeparator
+        suffix=" 원"
+        allowNegative={false}
         className="w-full border border-gray-400 px-3 py-2 rounded mb-2"
         placeholder="시급 입력"
       />
-      <p className="text-xs text-gray-500 mb-[10%] ml-3">최저 10,030원</p>
+
+      <div className="flex items-center justify-left gap-1 mb-[10%]">
+        <p
+          className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-[2px] rounded cursor-pointer"
+          onClick={() => setWage('10030')}
+        >
+          최저 10,030원
+        </p>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setWage((prev) => `${Number(prev || 0) + 1000}`)}
+            className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-[2px] rounded cursor-pointer"
+          >
+            +천원
+          </button>
+          <button
+            onClick={() => setWage((prev) => `${Number(prev || 0) + 10000}`)}
+            className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-[2px] rounded cursor-pointer"
+          >
+            +1만원
+          </button>
+        </div>
+      </div>
 
       <label className="block mb-2 font-semibold">하루 근무 시간</label>
       <div className="flex gap-2 mb-[10%]">
@@ -64,10 +88,12 @@ export default function ManualSalaryCal() {
       </div>
 
       <label className="block mb-2 font-semibold">근무 일수</label>
-      <input
-        type="number"
+      <NumericFormat
         value={workingDays}
-        onChange={(e) => setWorkingDays(e.target.value)}
+        onValueChange={({ value }) => setWorkingDays(value)}
+        thousandSeparator={false}
+        suffix=" 일"
+        allowNegative={false}
         className="w-full border border-gray-400 px-3 py-2 mb-[10%] rounded"
         placeholder="근무 일수 입력"
       />
@@ -76,17 +102,15 @@ export default function ManualSalaryCal() {
       <div className="flex gap-2 mb-[10%]">
         <button
           onClick={() => setHolidayApplied(false)}
-          className={`flex-1 px-3 py-2 rounded border border-gray-400 ${
-            holidayApplied === false ? 'bg-blue-500 text-white' : 'bg-white'
-          }`}
+          className={`flex-1 px-3 py-2 rounded border border-gray-400 ${holidayApplied === false ? 'bg-green-400 border-none text-white' : 'bg-white hover:bg-gray-300'
+            }`}
         >
           미적용
         </button>
         <button
           onClick={() => setHolidayApplied(true)}
-          className={`flex-1 px-3 py-2 rounded border border-gray-400 ${
-            holidayApplied === true ? 'bg-blue-500 text-white' : 'bg-white'
-          }`}
+          className={`flex-1 px-3 py-2 rounded border border-gray-400 ${holidayApplied === true ? 'bg-green-400 border-none text-white' : 'bg-white hover:bg-gray-300'
+            }`}
         >
           적용
         </button>
@@ -98,9 +122,8 @@ export default function ManualSalaryCal() {
           <button
             key={type}
             onClick={() => setTaxType(type)}
-            className={`flex-1 px-3 py-2 rounded border border-gray-400 ${
-              taxType === type ? 'bg-blue-500 text-white' : 'bg-white'
-            }`}
+            className={`flex-1 px-3 py-2 rounded border border-gray-400 ${taxType === type ? 'bg-green-400 border-none text-white' : 'bg-white hover:bg-gray-300'
+              }`}
           >
             {type}
           </button>
@@ -116,7 +139,7 @@ export default function ManualSalaryCal() {
         </button>
         <button
           onClick={handleSubmit}
-          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
+          className="flex-1 bg-green-400 hover:bg-green-500 text-white py-2 rounded"
         >
           계산하기
         </button>

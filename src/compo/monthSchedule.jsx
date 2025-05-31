@@ -1,8 +1,3 @@
-// 설치 필요:
-// npm install swiper
-// 또는
-// yarn add swiper
-
 import { useState, useMemo, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
@@ -14,18 +9,13 @@ import {
   getCurrentMonth,
 } from '../js/scheduleDate.js';
 import dummySchedule from '../js/dummyData1.js';
+import {colorPalette} from '../js/colorPalette';
 import '../App.css';
 
 export default function MonthSchedule() {
   const [currentYear, setCurrentYear] = useState(getCurrentYear());
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
   const swiperRef = useRef(null);
-
-  const colorPalette = [
-    'bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-sky-100',
-    'bg-pink-100', 'bg-purple-100', 'bg-indigo-100', 'bg-emerald-100',
-    'bg-orange-100', 'bg-cyan-100', 'bg-violet-100'
-  ];
 
   const parseTime = (timeStr) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
@@ -70,9 +60,9 @@ export default function MonthSchedule() {
     const dates = getDates(year, month);
     return (
       <div className="w-full">
-        <div className="grid grid-cols-7 font-medium text-center mb-2 mt-2 text-xs">
-          {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-            <div key={d}>{d}</div>
+        <div className="grid grid-cols-7 font-medium text-center mb-2 text-xs">
+          {["일", "월", "화", "수", "목", "금", "토"].map((d, i) => (
+            <div key={d} className={`${i % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}>{d}</div>
           ))}
         </div>
         <div className="grid grid-cols-7">
@@ -82,17 +72,17 @@ export default function MonthSchedule() {
             const hiddenCount = works.length > 2 ? works.length - 2 : 0;
             return (
               <div key={fullDate} className="aspect-square border-b border-gray-200 p-1 text-sm">
-                <div className={isCurrentMonth ? 'text-black' : 'text-gray-400'}>{day}</div>
+                <div className={isCurrentMonth ? 'text-black' : 'text-gray-300'}>{day}</div>
                 {visible.map(({ name }, idx) => (
                   <div
                     key={idx}
-                    className={`rounded-full ${nameColorMap[name] || 'bg-gray-200'} text-gray-800 text-[0.6rem] text-center truncate px-1 py-[2px]`}
+                    className={`rounded-full ${nameColorMap[name] || 'bg-gray-200'} text-gray-800 text-[0.6rem] text-center truncate px-1 py-[2px] ${isCurrentMonth ? '' : 'opacity-40'}`}
                   >
                     {name}
                   </div>
                 ))}
                 {hiddenCount > 0 && (
-                  <div className="text-[0.6rem] text-gray-500 text-center mt-[1px]">+ {hiddenCount} more</div>
+                  <div className={`text-[0.6rem] text-gray-500 text-center mt-[1px] ${isCurrentMonth ? '' : 'opacity-40'}`}>+ {hiddenCount} more</div>
                 )}
               </div>
             );
@@ -104,13 +94,13 @@ export default function MonthSchedule() {
 
   return (
     <div className='relative w-full pl-4 pr-4'>
-      <div className='w-full aspect-[10/1] flex justify-between items-center border-b border-gray-300 pt-3 pb-3'>
+      <div className='w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3'>
         <ChevronLeftIcon className='h-6 w-6 cursor-pointer'
           onClick={() => {
             if (swiperRef.current) swiperRef.current.slidePrev();
           }}
         />
-        <div className='text-base text-lg'>{currentYear}년 {currentMonth}월</div>
+        <div className='text-base text-lg'>{currentMonth}월 {currentYear}</div>
         <ChevronRightIcon className='h-6 w-6 cursor-pointer'
           onClick={() => {
             if (swiperRef.current) swiperRef.current.slideNext();

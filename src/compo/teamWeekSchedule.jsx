@@ -20,7 +20,7 @@ export default function teamWeekSchedule({
   const [dates, setDates] = useState([]);
   const [openDetailBlock, setOpenDetailBlock] = useState(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [dragMode, setDragMode] = useState(null); // 'add' or 'remove'
+  const [dragMode, setDragMode] = useState(null);
   const [startCell, setStartCell] = useState(null);
   const [endCell, setEndCell] = useState(null);
   const [previewBlocks, setPreviewBlocks] = useState(new Set());
@@ -39,7 +39,9 @@ export default function teamWeekSchedule({
     }
   }, [currentWeekStart]);
 
-    useEffect(() => {
+  const weekKey = `${currentWeekStart.year}-${String(currentWeekStart.month).padStart(2, '0')}-${String(currentWeekStart.day).padStart(2, '0')}`;
+
+  useEffect(() => {
     const handleWindowMouseUp = () => {
       if (startCell && endCell && isEditing && selectedUser) {
         const newSet = new Set(scheduleData[weekKey]?.[selectedUser] || []);
@@ -112,10 +114,6 @@ export default function teamWeekSchedule({
     setPreviewBlocks(newPreview);
   };
 
-  if (!isValidWeekStart) {
-    return <div className="p-4">날짜 정보를 불러오는 중입니다...</div>;
-  }
-
   const handlePrevWeek = () => {
     const date = new Date(currentWeekStart.year, currentWeekStart.month - 1, currentWeekStart.day);
     date.setDate(date.getDate() - 7);
@@ -136,12 +134,15 @@ export default function teamWeekSchedule({
     });
   };
 
-  const weekKey = `${currentWeekStart.year}-${String(currentWeekStart.month).padStart(2, '0')}-${String(currentWeekStart.day).padStart(2, '0')}`;
   const currentWeekUsers = scheduleData[weekKey] || {};
 
-    return (
+  if (!isValidWeekStart) {
+    return <div className="p-4">날짜 정보를 불러오는 중입니다...</div>;
+  }
+
+  return (
     <div className="p-4 mb-4">
-      <div className="w-full aspect-[10/1] flex justify-between items-center border-b border-gray-400 pt-3 pb-3">
+      <div className="w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3">
         <ChevronLeftIcon className="h-[100%] aspect-[1/1] cursor-pointer" onClick={handlePrevWeek} />
         <div>
           {dates[0]?.month}월 {dates[0]?.day}일 - {dates[6]?.month}월 {dates[6]?.day}일, {dates[0]?.year}년
@@ -149,10 +150,10 @@ export default function teamWeekSchedule({
         <ChevronRightIcon className="h-[100%] aspect-[1/1] cursor-pointer" onClick={handleNextWeek} />
       </div>
 
-      <div className="grid grid-cols-8 text-center">
-        <div className="border-b py-2 font-bold border-gray-400"><br />시간</div>
+      <div className="grid grid-cols-8 text-center mb-1">
+        <div className="font-bold"><br />시간</div>
         {days.map((day, i) => (
-          <div key={day} className="border-b py-2 border-gray-400">
+          <div key={day}>
             <div className="font-bold">{day}</div>
             <div className="text-sm text-gray-500">{dates[i]?.day}</div>
           </div>
@@ -162,17 +163,21 @@ export default function teamWeekSchedule({
       <div className="grid grid-cols-8">
         {Array.from({ length: 48 }, (_, rowIndex) => (
           <React.Fragment key={`row-${rowIndex}`}>
-            <div className="text-xs flex items-center justify-center border-b border-l border-r border-gray-400 h-8">
+            <div className={`text-xs flex items-center justify-center h-8 ${rowIndex % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}>
               {rowIndex % 2 === 0 ? hours[rowIndex] : ''}
             </div>
             {days.map((_, colIndex) => {
               const blockKey = `${rowIndex}-${colIndex}`;
               const isEditable = isEditing && selectedUser;
-              const isSelectedUserActive = isEditable && scheduleData[weekKey]?.[selectedUser]?.has(blockKey);
               const isPreview = previewBlocks.has(blockKey);
               const blockUsers = Object.entries(currentWeekUsers)
                 .filter(([_, blocks]) => blocks?.has?.(blockKey))
                 .map(([user]) => user);
+
+              if (isEditing && isPreview && selectedUser && !blockUsers.includes(selectedUser)) {
+                blockUsers.push(selectedUser);
+              }
+
               const visibleUsers = blockUsers.slice(0, 2);
               const hasMore = blockUsers.length > 2;
               const isDetailOpen = openDetailBlock === blockKey;
@@ -180,9 +185,12 @@ export default function teamWeekSchedule({
               return (
                 <div
                   key={blockKey}
-                  className={`relative h-8 border border-gray-300 transition duration-100 ${
-                    isEditable ? 'hover:border-blue-400 hover:cursor-pointer' : ''
-                  }`}
+                  className={`
+    relative h-8 border-t border-r border-gray-300 transition duration-100 
+    ${rowIndex === 47 ? 'border-b' : ''}
+    ${isEditable ? 'hover:border-blue-400 hover:cursor-pointer' : ''}
+    ${isPreview ? 'border-2 border-blue-500 border-dashed animate-pulse bg-blue-100/30' : ''}
+  `}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     handleMouseDown(rowIndex, colIndex);
@@ -191,16 +199,8 @@ export default function teamWeekSchedule({
                   onClick={() =>
                     !isEditing && setOpenDetailBlock(prev => (prev === blockKey ? null : blockKey))
                   }
-                  style={{
-                    backgroundColor: isSelectedUserActive
-                      ? getUserColor(selectedUser)
-                      : isPreview
-                      ? 'rgba(0, 0, 255, 0.2)'
-                      : 'transparent',
-                    cursor: isEditable ? 'pointer' : 'default',
-                  }}
                 >
-                  {!isEditing && blockUsers.length > 0 && (
+                  {blockUsers.length > 0 && (
                     <div className="absolute left-1 top-1 flex gap-[2px] items-center group">
                       {visibleUsers.map(user => (
                         <div
@@ -241,4 +241,3 @@ export default function teamWeekSchedule({
     </div>
   );
 }
-

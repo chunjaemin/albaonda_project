@@ -70,7 +70,7 @@ export default function BottomNavbar() {
     >
       {navItems.map(({ path, label, OutlineIcon, SolidIcon }) => {
         const isActive = currentPath === path;
-        const colorClass = isActive ? "text-blue-500" : "text-gray-500";
+        const colorClass = isActive ? "text-green-400" : "text-gray-500";
         const Icon = isActive ? SolidIcon : OutlineIcon;
 
         return (

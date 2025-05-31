@@ -58,7 +58,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
   return (
     <div className="relative w-full pl-4 pr-4">
       {/* 날짜 컨트롤 바 */}
-      <div className="w-full aspect-[10/1] flex justify-between items-center border-b border-gray-300 pt-3 pb-3">
+      <div className="w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3">
         <ChevronLeftIcon
           className="h-[100%] aspect-[1/1] cursor-pointer"
           onClick={() => {
@@ -70,7 +70,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
             }
           }}
         />
-        <div>
+        <div className='text-lg'>
           {currentMonth}월 {currentYear}
         </div>
         <ChevronRightIcon
@@ -87,11 +87,11 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
       </div>
 
       {/* 요일 표시 */}
-      <div className="w-full flex justify-between items-center">
-        {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+      <div className="w-full flex justify-between items-center text-xs">
+        {['일', '월', '화', '수', '목', '금', '토'].map((day, i) => (
           <div
             key={day}
-            className="w-1/7 flex justify-center items-center mt-2 mb-2 font-semibold"
+            className={`w-1/7 flex justify-center items-center ${i % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}
           >
             {day}
           </div>

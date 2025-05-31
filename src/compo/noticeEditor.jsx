@@ -1,5 +1,7 @@
+// ✅ NoticeEditor.jsx
 import { useState, useEffect } from "react";
 import { BookmarkIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { motion } from "framer-motion";
 
 export default function NoticeEditor({
   onClose,
@@ -32,8 +34,21 @@ export default function NoticeEditor({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
-      <div className="bg-white rounded-xl w-[90%] max-w-sm p-5 shadow-xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* ✅ 배경 오버레이: 애니메이션 없음 */}
+      <div
+        className="absolute inset-0 bg-black/30"
+        onClick={onClose}
+      ></div>
+
+      {/* ✅ 모달 본체: 애니메이션 적용 */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className="relative bg-white rounded-xl w-[90%] max-w-sm p-5 shadow-xl z-10"
+      >
         <XMarkIcon
           className="w-6 h-6 absolute top-3 right-3 text-gray-500 cursor-pointer"
           onClick={onClose}
@@ -83,7 +98,7 @@ export default function NoticeEditor({
             저장
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

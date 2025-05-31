@@ -113,7 +113,7 @@ const dummySchedule = {
       "date": "2025-04-13",
       "dayOfWeek": "일",
       "startTime": "22:00",
-      "endTime": "04:00",
+      "endTime": "24:00",
       "payInfo": {
         "id": "pay006",
         "hourPrice": 12500,
@@ -173,7 +173,7 @@ const dummySchedule = {
       "date": "2025-05-01",
       "dayOfWeek": "목",
       "startTime": "21:00",
-      "endTime": "03:00",
+      "endTime": "23:00",
       "payInfo": {
         "id": "pay009",
         "hourPrice": 12500,
@@ -273,7 +273,7 @@ const dummySchedule = {
       "date": "2025-04-18",
       "dayOfWeek": "금",
       "startTime": "23:00",
-      "endTime": "05:00",
+      "endTime": "24:00",
       "payInfo": {
         "id": "pay014",
         "hourPrice": 12500,
@@ -546,33 +546,13 @@ const dummySchedule = {
       }
     },
     {
-      "id": "entry028",
-      "userId": "user001",
-      "name": "피자헛 알바",
-      "nameById": "name028",
-      "date": "2025-05-07",
-      "dayOfWeek": "수",
-      "startTime": "09:00",
-      "endTime": "12:30",
-      "payInfo": {
-        "id": "pay028",
-        "hourPrice": 11500,
-        "wHoliday": false,
-        "Holiday": false,
-        "overtime": false,
-        "night": false,
-        "duty": "3.3%",
-        "nameById": "name028"
-      }
-    },
-    {
       "id": "entry029",
       "userId": "user001",
       "name": "공차 알바",
       "nameById": "name029",
       "date": "2025-05-07",
       "dayOfWeek": "수",
-      "startTime": "14:00",
+      "startTime": "19:00",
       "endTime": "20:00",
       "payInfo": {
         "id": "pay029",
@@ -612,7 +592,7 @@ const dummySchedule = {
       "nameById": "name101",
       "date": "2025-05-07",
       "dayOfWeek": "수",
-      "startTime": "17:00",
+      "startTime": "20:00",
       "endTime": "22:00",
       "payInfo": {
         "id": "pay101",

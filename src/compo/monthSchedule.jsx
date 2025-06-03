@@ -1,5 +1,10 @@
 import { useState, useMemo, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+
+import { useQuery } from '@tanstack/react-query';
+import { fetchPersonalMonthSchedule } from '../js/api/schedule';
+import { useAuthStore } from '../js/store';
+
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 import 'swiper/css';
@@ -8,14 +13,27 @@ import {
   getCurrentYear,
   getCurrentMonth,
 } from '../js/scheduleDate.js';
-import dummySchedule from '../js/dummyData1.js';
-import {colorPalette} from '../js/colorPalette';
+import { colorPalette } from '../js/colorPalette';
 import '../App.css';
 
 export default function MonthSchedule() {
   const [currentYear, setCurrentYear] = useState(getCurrentYear());
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
   const swiperRef = useRef(null);
+  const user = useAuthStore((s) => s.user);
+
+  const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['personal-month', user?.id, dateStr],
+    queryFn: () => fetchPersonalMonthSchedule(user.id, dateStr),
+    enabled: !!user?.id,
+  });
+
+  // 디버깅 로그 추가
+  // console.log("📦 [MonthSchedule] user:", user);
+  // console.log("📅 [MonthSchedule] dateStr:", dateStr);
+  // console.log("📊 [MonthSchedule] data:", data);
+  // console.log("⚠️ [MonthSchedule] error:", error);
 
   const parseTime = (timeStr) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
@@ -24,7 +42,8 @@ export default function MonthSchedule() {
 
   const nameColorMap = useMemo(() => {
     const countMap = {};
-    dummySchedule.entries.forEach((entry) => {
+    if (!data?.entries) return {};
+    data.entries.forEach((entry) => {
       const dur = parseTime(entry.endTime) - parseTime(entry.startTime);
       countMap[entry.name] = (countMap[entry.name] || 0) + dur;
     });
@@ -32,7 +51,7 @@ export default function MonthSchedule() {
       acc[name] = colorPalette[idx % colorPalette.length];
       return acc;
     }, {});
-  }, []);
+  }, [data]);
 
   const getDates = (y, m) => {
     const raw = generateCalendarDates(y, m);
@@ -54,7 +73,7 @@ export default function MonthSchedule() {
     });
   };
 
-  const getWorkByDate = (date) => dummySchedule.entries.filter((e) => e.date === date);
+  const getWorkByDate = (date) => data?.entries?.filter((e) => e.date === date) || [];
 
   const renderCalendar = (year, month) => {
     const dates = getDates(year, month);

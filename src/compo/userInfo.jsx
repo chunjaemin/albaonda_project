@@ -56,9 +56,9 @@ export default function UserInfo() {
   ]);
 
   const roleClass = {
-    '관리자': 'bg-red-100 border-l-4 border-red-500 p-4 rounded-md shadow',
-    '직원': 'bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-md shadow',
-    '알바': 'bg-blue-100 border-l-4 border-blue-500 p-4 rounded-md shadow',
+    '관리자': 'bg-red-100 border-l-4 border-red-400 p-4 rounded-md shadow',
+    '직원': 'bg-yellow-100 border-l-4 border-yellow-400 p-4 rounded-md shadow',
+    '알바': 'bg-blue-100 border-l-4 border-blue-400 p-4 rounded-md shadow',
   };
 
   const icons = {

@@ -1,9 +1,11 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { getWeekDates, getCurrentStartOfWeek } from '../js/scheduleDate.js';
 import { colorPalette } from '../js/colorPalette.js';
+import { postPersonalScheduleEntries } from '../js/api/schedule'; // ✅ 추가
+import { useAuthStore } from '../js/store'; // 실제 경로에 맞게 수정
 
-export default function WeekSchedule({ isModify, entries, setEntries, selectedCard }) {
+const WeekSchedule = forwardRef(({ isModify, entries, setEntries, selectedCard, onDeleteEntry, deletedEntryIds = [] }, ref) => {
   const [currentDate, setCurrentDate] = useState(getCurrentStartOfWeek());
   const [draggingEntryId, setDraggingEntryId] = useState(null);
   const [hoverTarget, setHoverTarget] = useState(null);
@@ -13,6 +15,16 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   const [longPressEntryId, setLongPressEntryId] = useState(null);
   const [pressTimer, setPressTimer] = useState(null);
   const [selectedEntryId, setSelectedEntryId] = useState(null); // 삭제용
+
+  // 삭제된 일정 ID 제외
+  const visibleEntries = entries.filter(e => !deletedEntryIds.includes(e.id));
+
+  const auth = useAuthStore.getState();
+  if (!auth.user) {
+    console.error("로그인이 필요합니다.");
+    return;
+  }
+  const userId = auth.user.id;
 
   const parseTime = (t) => {
     const [h, m] = t.split(":").map(Number);
@@ -46,7 +58,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
     // ✅ 여기에 바로 넣어!
     if (isModify || entries.length === 0) return all.slice(18, 34);
 
-    const currentWeekEntries = entries.filter(e => currentWeekDates.includes(e.date));
+    const currentWeekEntries = visibleEntries.filter(e => currentWeekDates.includes(e.date));
     if (currentWeekEntries.length === 0) return all.slice(18, 34);
 
     const allTimes = currentWeekEntries.flatMap(e => {
@@ -66,7 +78,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
 
   const nameColorMap = useMemo(() => {
     const countMap = {};
-    entries.forEach(entry => {
+    visibleEntries.forEach(entry => {
       const start = parseTime(entry.startTime);
       const end = parseTime(entry.endTime);
       countMap[entry.name] = (countMap[entry.name] || 0) + (end - start);
@@ -77,13 +89,14 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
     }, {});
   }, [entries]);
 
-  const handleSaveSelectedCells = () => {
+  const handleSaveSelectedCells = async () => {
     if (!selectedCard || selectedCells.length === 0) return;
     const groupedByDate = selectedCells.reduce((acc, { date, hour }) => {
       if (!acc[date]) acc[date] = [];
       acc[date].push(hour);
       return acc;
     }, {});
+
     const newEntries = [];
     Object.entries(groupedByDate).forEach(([date, hourList]) => {
       const sorted = hourList.map(h => parseTime(h)).sort((a, b) => a - b);
@@ -91,28 +104,37 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
       for (let i = 1; i <= sorted.length; i++) {
         const cur = sorted[i];
         if (cur !== prev + 30) {
-          const newEntry = {
-            id: `entry-${Date.now()}-${Math.random()}`,
+          newEntries.push({
             name: selectedCard.name,
             date,
+            dayOfWeek: days[new Date(date).getDay()],
             startTime: formatTime(start),
             endTime: formatTime(prev + 30),
-            ...selectedCard.payInfo
-          };
-          const overlap = entries.some(e =>
-            e.date === date &&
-            parseTime(e.startTime) < parseTime(newEntry.endTime) &&
-            parseTime(e.endTime) > parseTime(newEntry.startTime)
-          );
-          if (!overlap) newEntries.push(newEntry);
+            hourPrice: selectedCard.payInfo?.hourPrice || 0,
+            overtime: selectedCard.payInfo?.overtime || false,
+            night: selectedCard.payInfo?.night || false,
+            Holiday: selectedCard.payInfo?.Holiday || false,
+            wHoliday: selectedCard.payInfo?.wHoliday || false,
+            duty: selectedCard.payInfo?.duty || '',
+            isTemporary: true // ✅ 이거 반드시 필요!
+          });
           start = cur;
         }
         prev = cur;
       }
     });
+
     setEntries(prev => [...prev, ...newEntries]);
     setSelectedCells([]);
   };
+
+  // 서버에 저장할 데이터 추출 함수 (isTemporary 필터)
+  useImperativeHandle(ref, () => ({
+    getTemporaryEntries: () => entries.filter(e => e.isTemporary),
+    clearTemporaryEntries: () => {
+      setEntries(prev => prev.filter(e => !e.isTemporary));
+    }
+  }));
 
   const toggleCell = (dateObj, hour) => {
     const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
@@ -173,7 +195,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
 
   const findEntryForCell = (dateObj, hour) => {
     const dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
-    return entries.find(entry => {
+    return visibleEntries.find(entry => {
       if (entry.date !== dateStr) return false;
       const startTotal = parseTime(entry.startTime);
       const endTotal = parseTime(entry.endTime);
@@ -185,7 +207,7 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
   const renderPreview = (rowIndex, colIndex) => {
     if (!isModify || !draggingEntryId || !hoverTarget) return false;
     const targetTime = parseTime(hoverTarget.hour);
-    const draggingEntry = entries.find(e => e.id === draggingEntryId);
+    const draggingEntry = visibleEntries.find(e => e.id === draggingEntryId);
     const duration = parseTime(draggingEntry.endTime) - parseTime(draggingEntry.startTime);
     const previewStart = targetTime, previewEnd = targetTime + duration;
     const hour = rowIndex * 30;
@@ -328,8 +350,11 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          console.log("🔥 삭제 실행");
-                          setEntries(prev => prev.filter(e => String(e.id) !== String(selectedEntryId)));
+                          if (onDeleteEntry) {
+                            onDeleteEntry(entry.id); // ✅ props 함수 호출
+                          } else {
+                            setEntries(prev => prev.filter(e => String(e.id) !== String(selectedEntryId))); // fallback
+                          }
                           setSelectedEntryId(null);
                         }}
                         className="bg-red-600 text-white p-1 rounded-full shadow hover:bg-red-700 transition"
@@ -363,4 +388,6 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
       )}
     </div>
   );
-}
+})
+
+export default WeekSchedule;

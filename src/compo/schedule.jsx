@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import { postPersonalScheduleEntries, fetchWeekSchedule, deletePersonalScheduleEntries } from '../js/api/schedule';
 import '../App.css';
 
 import MonthSchedule from './monthSchedule.jsx';
@@ -9,7 +12,6 @@ import { NumericFormat } from 'react-number-format';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { useAuthStore } from '../js/store.js';
-import dummySchedule from '../js/dummyData1.js';
 
 export default function Schedule() {
   const [scheduleType, setScheduleType] = useState('month');
@@ -18,8 +20,12 @@ export default function Schedule() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedCardInfoModal, setSelectedCardInfoModal] = useState(null);
   const [editingCard, setEditingCard] = useState(null); // 현재 수정 중인 카드
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [localEntries, setLocalEntries] = useState([]);
+  const [deletedEntryIds, setDeletedEntryIds] = useState([]); // 🆕 삭제된 일정 ID 저장
 
-  const [entries, setEntries] = useState(dummySchedule.entries);
+  const weekRef = useRef(null); // ✅ ref 추가
+
   const user = useAuthStore((s) => s.user);
 
   const [scheduleItems, setScheduleItems] = useState([
@@ -56,6 +62,19 @@ export default function Schedule() {
     휴일근무수당: false
   });
 
+  const today = dayjs().format('YYYY-MM-DD');
+  const queryClient = useQueryClient();
+
+  const {
+    data: entries = [],
+    isLoading,
+    isError
+  } = useQuery({
+    queryKey: ['weekSchedule', user.id, today],
+    queryFn: () => fetchWeekSchedule(user.id, today),
+    enabled: !!user?.id,
+  });
+
   const toggleAllowance = (key) => {
     setAllowances(prev => ({
       ...prev,
@@ -85,12 +104,67 @@ export default function Schedule() {
     setShowModal(false);
   };
 
+
+
+  // 저장 버튼 로직 handleSaveToServer 에서 삭제 반영
+  const handleSaveToServer = async () => {
+    const tempEntries = weekRef.current?.getTemporaryEntries?.();
+    const hasNew = tempEntries && tempEntries.length > 0;
+    const hasDelete = deletedEntryIds && deletedEntryIds.length > 0;
+
+    if (!hasNew && !hasDelete) {
+      alert("저장할 내용이 없습니다.");
+      return;
+    }
+
+    try {
+      let result = { success: true };
+      if (hasNew) {
+        result = await postPersonalScheduleEntries(user.id, tempEntries);
+      }
+
+      let deleteResult = { success: true };
+      if (hasDelete) {
+        deleteResult = await deletePersonalScheduleEntries(user.id, deletedEntryIds);
+      }
+
+      if (result.success && deleteResult.success) {
+        setLocalEntries(prev => prev.filter(e => !e.isTemporary));
+        weekRef.current.clearTemporaryEntries?.();
+        setDeletedEntryIds([]);
+        queryClient.invalidateQueries(['weekSchedule', user.id, today]);
+        setIsModify(false);
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        alert("저장 실패");
+      }
+    } catch (e) {
+      alert("저장 중 오류 발생: " + e.message);
+    }
+  };
+
+  const handleDeleteEntry = (entryId) => {
+    if (!isModify) return;
+
+    // 삭제 ID 기록
+    setDeletedEntryIds(prev => [...prev, entryId]);
+
+    // 화면에서 바로 안 보이게 필터링
+    setLocalEntries(prev => prev.filter(e => e.id !== entryId));
+  };
+
   const month_blue = scheduleType === 'month' ? 'text-blue-400 font-bold' : 'text-gray-400';
   const week_blue = scheduleType === 'week' ? 'text-blue-400 font-bold' : 'text-gray-400';
 
   return (
     <>
       <div className='w-full'>
+        {saveSuccess && (
+          <div className="fixed top-3 left-1/2 -translate-x-1/2 bg-green-200 text-green-800 px-4 py-2 rounded shadow z-50">
+            ✅ 일정이 저장되었습니다!
+          </div>
+        )}
         <div className='w-full flex justify-between'>
           <div className="relative ml-4 w-36 h-10 flex items-center rounded-full shadow shadow-sm bg-white mt-5 overflow-hidden">
             <motion.div
@@ -130,6 +204,8 @@ export default function Schedule() {
                     onClick={() => {
                       setIsModify(false);
                       setSelectedCard(null);
+                      // ✅ 삭제 취소되도록 초기화
+                      setDeletedEntryIds([]);
                     }}
                     className="px-4 py-2 text-sm font-semibold text-green-500 bg-green-100 hover:bg-green-200 active:scale-95 transition-all rounded-xl shadow"
                   >
@@ -144,7 +220,9 @@ export default function Schedule() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 300, damping: 15 }}
               onClick={() => {
-                if (isModify) setIsModify(false);
+                if (isModify) {
+                  handleSaveToServer();
+                }
                 else {
                   setIsModify(true);
                   setScheduleType('week');
@@ -178,10 +256,14 @@ export default function Schedule() {
               transition={{ duration: 0.3 }}
             >
               <WeekSchedule
+                ref={weekRef}
                 isModify={isModify}
                 selectedCard={selectedCard}
-                entries={entries}
-                setEntries={setEntries}
+                entries={[...(entries ?? []), ...(localEntries ?? [])]}
+                // entries={[]}
+                setEntries={setLocalEntries}
+                onDeleteEntry={handleDeleteEntry} // ✅ 추가
+                deletedEntryIds={deletedEntryIds} // ✅ 추가
               />
             </motion.div>
           )}

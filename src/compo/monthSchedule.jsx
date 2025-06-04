@@ -1,21 +1,34 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-
 import 'swiper/css';
 import {
   generateCalendarDates,
   getCurrentYear,
   getCurrentMonth,
 } from '../js/scheduleDate.js';
-import dummySchedule from '../js/dummyData1.js';
-import {colorPalette} from '../js/colorPalette';
+import dummyScheduleData from '../js/dummyData1.js';
+import { colorPalette } from '../js/colorPalette';
 import '../App.css';
 
 export default function MonthSchedule() {
   const [currentYear, setCurrentYear] = useState(getCurrentYear());
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
+  const [scheduleData, setScheduleData] = useState([]);
   const swiperRef = useRef(null);
+
+  // ✅ 데이터 초기화
+  useEffect(() => {
+    const saved = localStorage.getItem('entries');
+    if (saved) {
+      setScheduleData(JSON.parse(saved));
+    } else {
+      const initData = dummyScheduleData.entries;
+      // 저장은 다른 곳에서 할거임 
+      // localStorage.setItem('scheduleEntries', JSON.stringify(initData));
+      setScheduleData(initData);
+    }
+  }, []);
 
   const parseTime = (timeStr) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
@@ -24,15 +37,17 @@ export default function MonthSchedule() {
 
   const nameColorMap = useMemo(() => {
     const countMap = {};
-    dummySchedule.entries.forEach((entry) => {
+    scheduleData.forEach((entry) => {
       const dur = parseTime(entry.endTime) - parseTime(entry.startTime);
       countMap[entry.name] = (countMap[entry.name] || 0) + dur;
     });
-    return Object.entries(countMap).sort((a, b) => b[1] - a[1]).reduce((acc, [name], idx) => {
-      acc[name] = colorPalette[idx % colorPalette.length];
-      return acc;
-    }, {});
-  }, []);
+    return Object.entries(countMap)
+      .sort((a, b) => b[1] - a[1])
+      .reduce((acc, [name], idx) => {
+        acc[name] = colorPalette[idx % colorPalette.length];
+        return acc;
+      }, {});
+  }, [scheduleData]);
 
   const getDates = (y, m) => {
     const raw = generateCalendarDates(y, m);
@@ -54,7 +69,7 @@ export default function MonthSchedule() {
     });
   };
 
-  const getWorkByDate = (date) => dummySchedule.entries.filter((e) => e.date === date);
+  const getWorkByDate = (date) => scheduleData.filter((e) => e.date === date);
 
   const renderCalendar = (year, month) => {
     const dates = getDates(year, month);

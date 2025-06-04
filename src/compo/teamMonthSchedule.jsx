@@ -60,7 +60,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
       {/* 날짜 컨트롤 바 */}
       <div className="w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3">
         <ChevronLeftIcon
-          className="h-[100%] aspect-[1/1] cursor-pointer"
+          className="w-6 h-6 cursor-pointer"
           onClick={() => {
             if (currentMonth === 1) {
               setCurrentYear((prev) => prev - 1);
@@ -74,7 +74,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
           {currentMonth}월 {currentYear}
         </div>
         <ChevronRightIcon
-          className="h-[100%] aspect-[1/1] cursor-pointer"
+          className="w-6 h-6 cursor-pointer"
           onClick={() => {
             if (currentMonth === 12) {
               setCurrentYear((prev) => prev + 1);
@@ -118,20 +118,31 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
 
                     {/* 사용자 이니셜 동그라미 */}
                     {!isEditing && initials.length > 0 && (
-                      <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 group">
-                        {initials.slice(0, 2).map((user, i) => (
+                      <div className="absolute bottom-2 left-2 flex items-center group">
+                        {initials.slice(0, 3).map((user, i) => (
                           <div
                             key={i}
-                            className={`w-5 h-5 text-xs rounded-full text-white flex items-center justify-center ${isCurrentMonth ? '' : 'opacity-40'}`}
-                            style={{ backgroundColor: getUserColor(user) }}
+                            className={`w-5 h-5 text-xs rounded-full text-white flex items-center justify-center
+                              ${isCurrentMonth ? '' : 'opacity-40'}
+                            `}
+                            style={{
+                              backgroundColor: getUserColor(user),
+                              marginLeft: i === 0 ? 0 : '-10px', // ➜ 앞 원과 50% 겹치게
+                              zIndex: i, // ➜ 오른쪽 원이 위에 보이게
+                            }}
                             title={user}
                           >
                             {user[0]}
                           </div>
                         ))}
-                        {initials.length > 2 && (
+                        {initials.length > 3 && (
                           <>
-                            <span className="text-xs ml-1">...</span>
+                            <div
+                              className="w-5 h-5 text-xs rounded-full bg-gray-300 text-white flex items-center justify-center ml-[-10px]"
+                              style={{ zIndex: 10 }}
+                            >
+                              +{initials.length - 3}
+                            </div>
                             <div className="absolute top-full left-0 mt-1 p-2 bg-white border rounded shadow-lg z-50 hidden group-hover:block">
                               {initials.sort((a, b) => a.localeCompare(b)).map(name => (
                                 <div key={name} className="flex items-center gap-1 text-xs text-black whitespace-nowrap">

@@ -5,55 +5,16 @@ import Invite from './invite';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import '../App.css';
 import '../index.css';
-import SideBarTeamSpace from './sideBarTeamSpace.jsx';
-import { AnimatePresence, motion } from 'framer-motion';
+
+import dummyUsers from '../js/dummyUsers.js'; // 상대 경로에 맞게 수정
+import { motion } from 'framer-motion';
 
 export default function UserInfo() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [inviteRole, setInviteRole] = useState(null);
   const [isAdmin, setIsAdmin] = useState(true); // 관리자 여부 설정
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      role: '관리자',
-      name: '김점장',
-      phone: '010-9876-5432',
-      birth: '1980-01-01',
-      gender: '남성',
-      email: 'manager@example.com',
-      salary: '400만원',
-      account: '123-456-789',
-      emergencyContact: '010-0000-0000',
-      memo: '',
-    },
-    {
-      id: 2,
-      role: '직원',
-      name: '이직원',
-      phone: '010-1234-5678',
-      birth: '1990-05-12',
-      gender: '여성',
-      email: 'staff@example.com',
-      salary: '300만원',
-      account: '987-654-321',
-      emergencyContact: '010-0000-0000',
-      memo: '',
-    },
-    {
-      id: 3,
-      role: '알바',
-      name: '박알바',
-      phone: '010-1111-2222',
-      birth: '2000-10-10',
-      gender: '남성',
-      email: 'parttimer@example.com',
-      salary: '시급 12,000원',
-      account: '112-233-344',
-      emergencyContact: '010-0000-0000',
-      memo: '',
-    },
-  ]);
+  const [users, setUsers] = useState(dummyUsers);
 
   const roleClass = {
     '관리자': 'bg-red-100 border-l-4 border-red-500 p-4 rounded-md shadow',

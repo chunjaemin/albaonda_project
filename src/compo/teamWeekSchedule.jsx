@@ -143,11 +143,11 @@ export default function teamWeekSchedule({
   return (
     <div className="p-4 mb-4">
       <div className="w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3">
-        <ChevronLeftIcon className="h-[100%] aspect-[1/1] cursor-pointer" onClick={handlePrevWeek} />
+        <ChevronLeftIcon className="w-6 h-6 cursor-pointer" onClick={handlePrevWeek} />
         <div>
           {dates[0]?.month}월 {dates[0]?.day}일 - {dates[6]?.month}월 {dates[6]?.day}일, {dates[0]?.year}년
         </div>
-        <ChevronRightIcon className="h-[100%] aspect-[1/1] cursor-pointer" onClick={handleNextWeek} />
+        <ChevronRightIcon className="w-6 h-6 cursor-pointer" onClick={handleNextWeek} />
       </div>
 
       <div className="grid grid-cols-8 text-center mb-1">

@@ -1,10 +1,25 @@
-const colorPalette = [
-  '#F94144', '#F3722C', '#F8961E', '#F9C74F', '#90BE6D',
-  '#43AA8B', '#577590', '#277DA1', '#9D4EDD', '#F72585',
-  '#B5179E', '#7209B7', '#560BAD', '#3A0CA3', '#4361EE',
-  '#4CC9F0', '#2EC4B6', '#E63946', '#FFD166', '#06D6A0',
+export const colorPalette = [
+  '#FECACA', // bg-red-100
+  '#FFEDD5', // bg-orange-100
+  '#FEF3C7', // bg-amber-100
+  '#FEF9C3', // bg-yellow-100
+  '#ECFCCB', // bg-lime-100
+  '#DCFCE7', // bg-green-100
+  '#D1FAE5', // bg-emerald-100
+  '#CCFBF1', // bg-teal-100
+  '#CFFAFE', // bg-cyan-100
+  '#E0F2FE', // bg-sky-100
+  '#DBEAFE', // bg-blue-100
+  '#E0E7FF', // bg-indigo-100
+  '#EDE9FE', // bg-violet-100
+  '#F3E8FF', // bg-purple-100
+  '#FAE8FF', // bg-fuchsia-100
+  '#FCE7F3', // bg-pink-100
+  '#FFE4E6', // bg-rose-100
+  '#E7E5E4', // bg-stone-100
+  '#F3F4F6', // bg-gray-100
+  '#FAFAFA'  // bg-zinc-100
 ];
-
 /**
  * 사용자 이름을 기반으로 색상 고정 생성
  * @param {string} name - 사용자 이름

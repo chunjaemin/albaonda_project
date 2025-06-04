@@ -4,6 +4,10 @@ import TeamMonthSchedule from './teamMonthSchedule.jsx';
 import TeamWeekSchedule from './teamWeekSchedule.jsx';
 import { getCurrentStartOfWeek } from '../js/scheduleDate.js';
 import { AnimatePresence, motion } from 'framer-motion'; // 추가된 부분
+import dummyUsers from '../js/dummyUsers.js';
+
+import { useCurrentTeamIdStore } from '../js/store';
+import { dummyTeamSchedule1, dummyTeamSchedule2 } from '../js/dummyTeamData';
 
 export default function TeamSchedule() {
   const [scheduleType, setScheduleType] = useState('month');
@@ -19,12 +23,79 @@ export default function TeamSchedule() {
   };
   const [currentWeekStart, setCurrentWeekStart] = useState(parsedDate);
 
-  const users = [
-    { name: '김점장', role: '점장' },
-    { name: '이직원', role: '직원' },
-    { name: '박알바', role: '알바' },
-  ];
+  const transformEntriesToWeeklyMap = (entries) => {
+    const weeklyMap = {};
 
+    entries.forEach((entry) => {
+      const date = new Date(entry.date);
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay()); // Sunday 기준
+      const weekKey = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+
+      const dayIndex = date.getDay(); // 0 = 일, 6 = 토
+      const block = `0-${dayIndex}`; // 예시. 실제로는 시간 블록으로 쪼개도 됨
+
+      if (!weeklyMap[weekKey]) weeklyMap[weekKey] = {};
+      if (!weeklyMap[weekKey][entry.name]) weeklyMap[weekKey][entry.name] = new Set();
+
+      weeklyMap[weekKey][entry.name].add(block);
+    });
+
+    return weeklyMap;
+  };
+
+  function parseScheduleDataFromLocalStorage(jsonString) {
+    const parsed = JSON.parse(jsonString);
+    for (const week in parsed) {
+      for (const user in parsed[week]) {
+        parsed[week][user] = new Set(parsed[week][user]); // 배열 → Set 복원
+      }
+    }
+    return parsed;
+  }
+
+  const saveScheduleToLocalStorage = () => {
+    const localKey = `team-schedule-${teamId}`;
+    const serializableData = {};
+
+    for (const week in scheduleData) {
+      serializableData[week] = {};
+      for (const user in scheduleData[week]) {
+        serializableData[week][user] = Array.from(scheduleData[week][user]); // Set → Array
+      }
+    }
+
+    localStorage.setItem(localKey, JSON.stringify(serializableData));
+  };
+
+  const teamId = useCurrentTeamIdStore(state => state.id);
+
+  useEffect(() => {
+    const localKey = `team-schedule-${teamId}`;
+    const storedData = localStorage.getItem(localKey);
+
+    if (storedData) {
+      try {
+        const parsed = parseScheduleDataFromLocalStorage(storedData);
+        setScheduleData(parsed);
+      } catch (e) {
+        console.error("❌ 로컬 저장소 파싱 실패:", e);
+        const fallback = transformEntriesToWeeklyMap(dummyTeamSchedule1.entries);
+        setScheduleData(fallback);
+        localStorage.setItem(localKey, JSON.stringify(fallback));
+      }
+    } else {
+      const baseData =
+        teamId === 'team001'
+          ? transformEntriesToWeeklyMap(dummyTeamSchedule1.entries)
+          : transformEntriesToWeeklyMap(dummyTeamSchedule2.entries);
+
+      setScheduleData(baseData);
+      localStorage.setItem(localKey, JSON.stringify(baseData));
+    }
+  }, [teamId]);
+
+  const users = dummyUsers;
   const handleTabClick = (type) => {
     if (type === 'month') setIsEditing(false);
     setScheduleType(type);
@@ -73,7 +144,10 @@ export default function TeamSchedule() {
               취소
             </button>
             <button
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                saveScheduleToLocalStorage(); // ✅ 저장 호출
+                setIsEditing(false);
+              }}
               className="px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 rounded-xl shadow"
             >
               저장
@@ -91,7 +165,7 @@ export default function TeamSchedule() {
 
       {isEditing && (
         <div className="px-4 py-2 flex flex-col gap-2">
-          {['점장', '직원', '알바'].map((role) => {
+          {['관리자', '직원', '알바'].map((role) => {
             const roleUsers = users.filter((user) => user.role === role);
             return (
               <div key={role} className="flex items-center gap-2">

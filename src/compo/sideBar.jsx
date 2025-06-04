@@ -2,11 +2,12 @@ import { useSidebarStateStore, useCurrentSpaceNameStore, useCurrentTeamIdStore }
 import { dummyUserData } from '../js/dummyUserData';
 import { dummyTeamSchedule1, dummyTeamSchedule2 } from '../js/dummyTeamData';
 import { PencilIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 export default function SideBar({ onShowMyInfo }) {
   const { isSidebar } = useSidebarStateStore();
+  const { doSwitch } = useSidebarStateStore();
   const { setName } = useCurrentSpaceNameStore();
   const { setId } = useCurrentTeamIdStore();
 
@@ -17,6 +18,10 @@ export default function SideBar({ onShowMyInfo }) {
   const userData = dummyUserData;
   const teamData1 = dummyTeamSchedule1;
   const teamData2 = dummyTeamSchedule2;
+
+  useEffect(() => {
+    doSwitch(); // 또는 doSwitch(); 상황에 따라
+  }, [location.pathname]);
 
   const color = ["bg-gray-300", "bg-yellow-300", "bg-green-300"];
 
@@ -88,9 +93,8 @@ export default function SideBar({ onShowMyInfo }) {
           <div
             key={index}
             onClick={() => handleClick(team)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition cursor-pointer hover:bg-gray-100 ${
-              team.name === userData.name + ' 개인공간' ? 'bg-blue-50 font-medium' : ''
-            }`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition cursor-pointer hover:bg-gray-100 ${team.name === userData.name + ' 개인공간' ? 'bg-blue-50 font-medium' : ''
+              }`}
           >
             <div className={`w-6 h-6 rounded-md flex items-center justify-center text-white text-xs font-bold ${team.color}`}>
               {team.initial}

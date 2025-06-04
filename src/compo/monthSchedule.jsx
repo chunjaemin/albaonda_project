@@ -32,7 +32,7 @@ export default function MonthSchedule() {
   // 디버깅 로그 추가
   // console.log("📦 [MonthSchedule] user:", user);
   // console.log("📅 [MonthSchedule] dateStr:", dateStr);
-  // console.log("📊 [MonthSchedule] data:", data);
+  console.log("📊 [MonthSchedule] data:", data);
   // console.log("⚠️ [MonthSchedule] error:", error);
 
   const parseTime = (timeStr) => {

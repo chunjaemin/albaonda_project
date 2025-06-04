@@ -127,7 +127,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
                             `}
                             style={{
                               backgroundColor: getUserColor(user),
-                              marginLeft: i === 0 ? 0 : '-10px', // ➜ 앞 원과 50% 겹치게
+                              marginLeft: i === 0 ? 0 : '-7px', // ➜ 앞 원과 50% 겹치게
                               zIndex: i, // ➜ 오른쪽 원이 위에 보이게
                             }}
                             title={user}
@@ -138,14 +138,14 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
                         {initials.length > 3 && (
                           <>
                             <div
-                              className="w-5 h-5 text-xs rounded-full bg-gray-300 text-white flex items-center justify-center ml-[-10px]"
+                              className="w-5 h-5 text-xs rounded-full bg-gray-300 text-white flex items-center justify-center ml-[-7px]"
                               style={{ zIndex: 10 }}
                             >
                               +{initials.length - 3}
                             </div>
-                            <div className="absolute top-full left-0 mt-1 p-2 bg-white border rounded shadow-lg z-50 hidden group-hover:block">
+                            <div className="absolute top-full left-0 mt-1 p-3 bg-white rounded shadow-lg z-50 hidden group-hover:block">
                               {initials.sort((a, b) => a.localeCompare(b)).map(name => (
-                                <div key={name} className="flex items-center gap-1 text-xs text-black whitespace-nowrap">
+                                <div key={name} className="flex items-center gap-1 text-sm text-black whitespace-nowrap">
                                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getUserColor(name) }}></div>
                                   {name}
                                 </div>

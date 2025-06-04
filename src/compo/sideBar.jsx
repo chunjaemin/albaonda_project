@@ -19,10 +19,6 @@ export default function SideBar({ onShowMyInfo }) {
   const teamData1 = dummyTeamSchedule1;
   const teamData2 = dummyTeamSchedule2;
 
-  useEffect(() => {
-    doSwitch(); // 또는 doSwitch(); 상황에 따라
-  }, [location.pathname]);
-
   const color = ["bg-gray-300", "bg-yellow-300", "bg-green-300"];
 
   const teamArr = [
@@ -47,6 +43,9 @@ export default function SideBar({ onShowMyInfo }) {
   ];
 
   const handleClick = (team) => {
+    // 사이드바 닫기
+    doSwitch();
+
     if (!team.teamId) {
       setName(team.name);
       navigate("/home/schedule");

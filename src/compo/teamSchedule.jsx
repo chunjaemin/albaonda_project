@@ -5,6 +5,7 @@ import TeamWeekSchedule from './teamWeekSchedule.jsx';
 import { getCurrentStartOfWeek } from '../js/scheduleDate.js';
 import { AnimatePresence, motion } from 'framer-motion'; // 추가된 부분
 import dummyUsers from '../js/dummyUsers.js';
+import { v4 as uuidv4 } from 'uuid'; // npm install uuid 필요
 
 import { useCurrentTeamIdStore } from '../js/store';
 import { dummyTeamSchedule1, dummyTeamSchedule2 } from '../js/dummyTeamData';
@@ -66,6 +67,85 @@ export default function TeamSchedule() {
     }
 
     localStorage.setItem(localKey, JSON.stringify(serializableData));
+  };
+
+  const syncToPersonalEntries = () => {
+    const targetName = "천재민";
+    const userId = "user001";
+    const nameById = "name001";
+    const personalEntries = [];
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const BLOCK_DURATION_MINUTES = 30;
+    const BASE_HOUR = 0;
+    const pad = (n) => String(n).padStart(2, '0');
+
+    for (const weekKey in scheduleData) {
+      if (!scheduleData[weekKey][targetName]) continue;
+
+      const [year, month, day] = weekKey.split('-').map(Number);
+      const weekStartDate = new Date(year, month - 1, day); // 일요일
+
+      // ✅ 1. 요일(dayIndex)별로 block 묶기
+      const blocksByDay = {};
+      for (const block of scheduleData[weekKey][targetName]) {
+        const [hourIndex, dayIndex] = block.split('-').map(Number);
+        if (!blocksByDay[dayIndex]) blocksByDay[dayIndex] = [];
+        blocksByDay[dayIndex].push(hourIndex);
+      }
+
+      // ✅ 2. 같은 요일 안에서 연속된 시간 묶어서 entry 생성
+      Object.entries(blocksByDay).forEach(([dayIndexStr, hourList]) => {
+        const dayIndex = parseInt(dayIndexStr);
+        const date = new Date(year, month - 1, day + dayIndex); // ← 안전하게 한국 기준
+        const dateStr = `${year}-${pad(month)}-${pad(day + dayIndex)}`;
+
+        const dayOfWeek = dayNames[date.getDay()];
+        const sorted = [...hourList].sort((a, b) => a - b);
+
+        let start = sorted[0];
+        for (let i = 1; i <= sorted.length; i++) {
+          if (sorted[i] !== sorted[i - 1] + 1) {
+            const end = sorted[i - 1];
+
+            const toHHMM = (min) => {
+              const h = Math.floor(min / 60);
+              const m = min % 60;
+              return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            };
+
+            const startMin = BASE_HOUR * 60 + start * BLOCK_DURATION_MINUTES;
+            const endMin = BASE_HOUR * 60 + (end + 1) * BLOCK_DURATION_MINUTES;
+
+            personalEntries.push({
+              id: uuidv4(),
+              userId,
+              name: "맘스터치 팀공간",
+              nameById,
+              date: dateStr,
+              dayOfWeek,
+              startTime: toHHMM(startMin),
+              endTime: toHHMM(endMin),
+              payInfo: {
+                id: uuidv4(),
+                nameById,
+                hourPrice: 12000,
+                wHoliday: true,
+                Holiday: true,
+                overtime: true,
+                night: true,
+                duty: "4대보험"
+              }
+            });
+
+            start = sorted[i]; // 다음 묶음 시작
+          }
+        }
+      });
+    }
+
+    const existing = JSON.parse(localStorage.getItem("entries") || "[]");
+    const merged = [...existing, ...personalEntries];
+    localStorage.setItem("entries", JSON.stringify(merged));
   };
 
   const teamId = useCurrentTeamIdStore(state => state.id);
@@ -146,6 +226,7 @@ export default function TeamSchedule() {
             <button
               onClick={() => {
                 saveScheduleToLocalStorage(); // ✅ 저장 호출
+                syncToPersonalEntries();
                 setIsEditing(false);
               }}
               className="px-4 py-2 text-sm font-semibold text-white bg-green-400 hover:bg-green-500 rounded-xl shadow"

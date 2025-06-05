@@ -4,8 +4,8 @@ import '../App.css'
 
 export default function TopBar() {
   const { doSwitch } = useSidebarStateStore();
-  const { name } = useCurrentSpaceNameStore();
-  let currentSpaceName = name;
+  const currentSpaceName = useCurrentSpaceNameStore(state => state.name);
+
   return (
     <>
       <div className="relative w-full aspect-[10/1] flex items-center bg-gray-100/70">

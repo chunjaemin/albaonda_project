@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { useSidebarStateStore, useCurrentSpaceNameStore } from '../js/teamStore';
+import { useSidebarStateStore, useCurrentSpaceNameStore } from '../js/store';
 import '../App.css';
 
 export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
@@ -10,9 +10,9 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
   const selectedTeamName = useCurrentSpaceNameStore(state => state.name);
 
   const [teams, setTeams] = useState([
-    { id: 1, icon: '천', color: 'bg-gray-400', name: '천재민 개인공간', editing: false },
-    { id: 2, icon: '맘', color: 'bg-yellow-400', name: '맘스터치 팀공간', editing: false },
-    { id: 3, icon: '버', color: 'bg-red-400', name: '버거킹 팀공간', editing: false }
+    { id: 1, icon: '천', color: 'bg-gray-300', name: '천재민 개인공간', editing: false },
+    { id: 2, icon: '맘', color: 'bg-yellow-300', name: '맘스터치 팀공간', editing: false },
+    { id: 3, icon: '버', color: 'bg-green-300', name: '버거킹 팀공간', editing: false }
   ]);
 
   const [editInputs, setEditInputs] = useState({});
@@ -57,12 +57,13 @@ export default function SideBarTeamSpace({ isOpen, onClose, onShowMyInfo }) {
   };
 
   const handleTeamClick = (team) => {
+    setSelectedTeamName(team.name);
+
     if (team.id === 1) navigate('/home/schedule');
     else navigate('/teamspace/teamschedule');
-    setSelectedTeamName(team.name);
+
     onClose();
   };
-
   return (
     <div className={`absolute top-0 left-0 w-[260px] h-full bg-white shadow-[inset_-2px_0_4px_rgba(0,0,0,0.05)] border-r border-gray-200 z-50 transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 

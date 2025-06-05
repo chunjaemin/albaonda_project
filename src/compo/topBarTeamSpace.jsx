@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import { useSidebarStateStore } from '../js/store';
-import { useCurrentSpaceNameStore } from '../js/teamStore'; // ✅ teamStore에서 팀 이름 가져오기
+import { useCurrentSpaceNameStore } from '../js/store'; // ✅ teamStore에서 팀 이름 가져오기
 import '../App.css';
 
 export default function TopBarTeamSpace() {

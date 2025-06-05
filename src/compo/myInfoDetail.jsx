@@ -4,18 +4,17 @@ export default function MyInfoDetail({ isOpen, onClose }) {
   const [isEditing, setIsEditing] = useState(false);
 
   const [info, setInfo] = useState({
-    name: '홍길동',
-    birth: '1990-01-01',
+    name: '천재민',
+    birth: '2000-05-03',
     gender: '남',
-    email: 'hong@example.com',
-    salary: '3000000',
-    account: '123-456-789',
+    email: 'chun4582@naver.com',
+    account: '777-888-999',
     phone1: '010',
-    phone2: '1234',
-    phone3: '5678',
+    phone2: '3054',
+    phone3: '0067',
     emergency1: '010',
-    emergency2: '8765',
-    emergency3: '4321',
+    emergency2: '9999',
+    emergency3: '0000',
   });
 
   const [editValues, setEditValues] = useState(info);

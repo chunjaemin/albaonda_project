@@ -4,6 +4,12 @@ import '../css/keyframe.css'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { useNavigate } from 'react-router-dom'
+import image1 from '../assets/image 18.png'
+import image2 from '../assets/image 19.png'
+import image3 from '../assets/image 20.png'
+import image4 from '../assets/image 21.png'
+import logo from '../assets/logo.svg'
+
 
 export default function Landing() {
   const { ref: cardRef, inView: cardInView } = useInView({ triggerOnce: true, threshold: 0.5 });
@@ -17,12 +23,22 @@ export default function Landing() {
     bounce: 1,
   }
 
+  const cardData = [
+    { image: image1, title: "팀 단위 일정 관리" },
+    { image: image2, title: "개인 일정 관리" },
+    { image: image4, title: "단순한 급여 계산" },
+    { image: image3, title: "구체적인 급여 결과" }
+  ]
+
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-start px-4 py-10 text-center bg-gradient-to-b from-white to-green-100">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-start px-4 py-10 text-center bg-gradient-to-b from-white via-green-100 to-white">
       {/* 헤더 */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-[600px] z-50 bg-white/60 backdrop-blur-md shadow-sm">
         <div className="flex justify-center py-3">
-          <h1 className="text-2xl font-bold text-gray-800">Albaonda</h1>
+          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <img className="w-5 h-5" src={logo} alt="logo" />
+            <span className='-translate-x-1/12'>lbaonda</span>
+          </h1>
         </div>
       </div>
 
@@ -121,7 +137,10 @@ export default function Landing() {
       {/* 설명 텍스트 */}
       <div className="mt-50 text-center">
         <h3 className="text-2xl font-semibold text-gray-800">
-          복잡한 일정과 시급 계산, 이 앱 하나면 간단해요
+          <span className="bg-[linear-gradient(transparent_70%,#fef08a_70%)]">
+            복잡한 일정과 시급 계산,
+          </span>
+          이 앱 하나면 간단해요
         </h3>
         <p className="text-lg text-gray-500 mt-1">알바생을 위한, 딱 필요한 기능만 담았어요</p>
       </div>
@@ -172,25 +191,54 @@ export default function Landing() {
       </div>
 
       {/* ✅ 좌우좌 카드 레이아웃 */}
-      <div className="mt-32 w-full max-w-md flex flex-col gap-8 items-center px-4">
+      <div className="mt-32 w-full max-w-md flex flex-col gap-8 items-center">
         {/* 설명 텍스트 */}
         <div className="text-center">
           <h3 className="text-2xl font-semibold text-gray-800 mb-1">
-            일정과 급여 계산, 따로 할 필요 없어요
+            일정과 급여 계산,
+            <span className="bg-[linear-gradient(transparent_70%,#fef08a_70%)]">
+              따로 할 필요 없어요
+            </span>
           </h3>
           <p className="text-lg text-gray-500">
-            팀 일정부터 개인 반영까지, 급여 계산까지 자동으로 연결돼요.
+            팀 일정, 개인 일정, 급여 계산까지 자동으로 연결돼요.
           </p>
         </div>
 
-        <div className="relative w-full max-w-md flex flex-col gap-8 items-center px-4">
-          {/* 카드 1 */}
-          <div className="w-full flex justify-start relative">
-            <div className="w-40 h-40 bg-gray-200 rounded-xl shadow-md z-10" />
-          </div>
+        <div className="relative w-full max-w-md flex flex-col gap-8 items-center">
+
+          {/* 카드 리스트 */}
+          {cardData.map((item, index) => {
+            const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 })
+
+            return (
+              <motion.div
+                key={index}
+                ref={ref}
+                className={`w-full flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'} relative`}
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.7, delay: index * 0.1, ease: "easeOut" }}
+              >
+                <div className="w-[60%] bg-green-50 border border-green-100 rounded-2xl shadow-lg overflow-hidden">
+                  {/* 제목 라벨 */}
+                  <div className="bg-green-200 text-green-900 text-sm font-semibold px-4 py-2">
+                    {item.title}
+                  </div>
+
+                  {/* 이미지 */}
+                  <img
+                    src={item.image}
+                    alt={`설명 카드 ${index + 1}`}
+                    className="w-full h-auto object-cover rounded-b-2xl"
+                  />
+                </div>
+              </motion.div>
+            )
+          })}
 
           {/* 화살표 그룹 */}
-          <div className="absolute right-0 top-[90px] z-0 flex flex items-center rotate-[45deg]">
+          <div className="absolute right-0 top-[20%] z-0 flex flex items-center rotate-[60deg]">
             {[0, 1, 2, 3, 4].map((i) => (
               <div
                 key={i}
@@ -200,13 +248,8 @@ export default function Landing() {
             ))}
           </div>
 
-          {/* 카드 2 */}
-          <div className="w-full flex justify-end relative">
-            <div className="w-40 h-40 bg-gray-200 rounded-xl shadow-md z-10" />
-          </div>
-
           {/* 화살표 그룹 */}
-          <div className="absolute left-[100px] top-[400px] z-0 flex flex items-center rotate-[135deg]">
+          <div className="absolute left-[30%] top-[45%] z-0 flex flex items-center rotate-[120deg]">
             {[0, 1, 2, 3, 4].map((i) => (
               <div
                 key={i}
@@ -216,16 +259,23 @@ export default function Landing() {
             ))}
           </div>
 
-          {/* 카드 3 */}
-          <div className="w-full flex justify-start relative">
-            <div className="w-40 h-40 bg-gray-200 rounded-xl shadow-md z-10" />
+          {/* 화살표 그룹 */}
+          <div className="absolute left-[20%] top-[70%] z-0 flex flex items-center rotate-[60deg]">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="w-15 h-15 bg-green-300/50 clip-triangle arrow-fade"
+                style={{ animationDelay: `${i * 0.05 + 0.9}s` }}
+              />
+            ))}
           </div>
         </div>
+
 
         {/* CTA 버튼 */}
         <div className="mt-30 mb-20 text-center">
           <p className="text-2xl font-semibold text-gray-800">
-            당신의 시간을 아껴주는 똑똑한 선택
+            당신의 시간을 아껴주는 <span className='text-yellow-400'>똑똑한 선택</span>
           </p>
           <button
             className="mt-4 bg-green-400 text-white px-20 py-3 rounded-xl hover:bg-green-500 transition"

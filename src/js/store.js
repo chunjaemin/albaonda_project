@@ -17,7 +17,7 @@ export const useCurrentSpaceNameStore = create((set)=>({
 
 
 export const useCurrentTeamIdStore = create((set)=>({
-  teamId: "",
+  teamId: null,
   setId: (newId) => set(() => ({ teamId: newId }))
 }));
 

@@ -94,10 +94,13 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
           const newEntry = {
             id: `entry-${Date.now()}-${Math.random()}`,
             name: selectedCard.name,
+            nameById: `name-${Date.now()}-${Math.random()}`,
             date,
             startTime: formatTime(start),
             endTime: formatTime(prev + 30),
-            ...selectedCard.payInfo
+            dayOfWeek: days[new Date(date).getDay()],
+            payInfo: selectedCard.payInfo,
+            userId: `user-${Date.now()}-${Math.random()}`,
           };
           const overlap = entries.some(e =>
             e.date === date &&

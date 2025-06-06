@@ -19,33 +19,41 @@ export default function Schedule() {
   const [selectedCardInfoModal, setSelectedCardInfoModal] = useState(null);
   const [editingCard, setEditingCard] = useState(null); // 현재 수정 중인 카드
 
-  const [entries, setEntries] = useState(dummySchedule.entries);
+  const [entries, setEntries] = useState(() => {
+    const saved = localStorage.getItem("entries");
+    return saved ? JSON.parse(saved) : dummySchedule.entries;
+  });
+  const [originalEntries, setOriginalEntries] = useState(null); // 🔁 롤백용 백업
+
   const user = useAuthStore((s) => s.user);
 
-  const [scheduleItems, setScheduleItems] = useState([
-    {
-      name: "Mom's Touch 알바",
-      payInfo: {
-        hourPrice: 12000,
-        wHoliday: true,
-        Holiday: false,
-        overtime: false,
-        night: false,
-        duty: "4대보험"
+  const [scheduleItems, setScheduleItems] = useState(() => {
+    const saved = localStorage.getItem("scheduleItems");
+    return saved ? JSON.parse(saved) : [
+      {
+        name: "Mom's Touch 알바",
+        payInfo: {
+          hourPrice: 12000,
+          wHoliday: true,
+          Holiday: false,
+          overtime: false,
+          night: false,
+          duty: "4대보험",
+        }
+      },
+      {
+        name: "버거킹 알바",
+        payInfo: {
+          hourPrice: 9125,
+          wHoliday: true,
+          Holiday: false,
+          overtime: false,
+          night: false,
+          duty: "4대보험"
+        }
       }
-    },
-    {
-      name: "버거킹 알바",
-      payInfo: {
-        hourPrice: 9125,
-        wHoliday: true,
-        Holiday: false,
-        overtime: false,
-        night: false,
-        duty: "4대보험"
-      }
-    }
-  ]);
+    ];
+  });
 
   const [newItemName, setNewItemName] = useState('');
   const [newItemWage, setNewItemWage] = useState('');
@@ -78,8 +86,10 @@ export default function Schedule() {
       }
     };
 
-    setScheduleItems(prev => [...prev, newCard]);
-    // setSelectedCard(newCard); //카드 선택 부분인데 만들 때 선택되도록 하면 화면 표현이 어색해서 일단 주석 
+    const updated = [...scheduleItems, newCard];
+    setScheduleItems(updated);
+    localStorage.setItem("scheduleItems", JSON.stringify(updated));
+
     setNewItemName('');
     setNewItemWage('');
     setShowModal(false);
@@ -128,8 +138,12 @@ export default function Schedule() {
                 >
                   <button
                     onClick={() => {
-                      setIsModify(false);
-                      setSelectedCard(null);
+                      if (originalEntries) {
+                        setEntries(originalEntries);         // 🔁 복원
+                        setOriginalEntries(null);            // 백업 제거
+                      }
+                      setIsModify(false);                    // 수정 모드 종료
+                      setSelectedCard(null);                // 카드 선택 해제
                     }}
                     className="px-4 py-2 text-sm font-semibold text-green-500 bg-green-100 hover:bg-green-200 active:scale-95 transition-all rounded-xl shadow"
                   >
@@ -144,8 +158,14 @@ export default function Schedule() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 300, damping: 15 }}
               onClick={() => {
-                if (isModify) setIsModify(false);
-                else {
+                if (isModify) {
+                  // ✅ 저장 시에만 localStorage 갱신
+                  localStorage.setItem("entries", JSON.stringify(entries));
+                  localStorage.setItem("scheduleItems", JSON.stringify(scheduleItems));
+                  setOriginalEntries(null);
+                  setIsModify(false);
+                } else {
+                  setOriginalEntries(JSON.parse(JSON.stringify(entries))); // 깊은 복사
                   setIsModify(true);
                   setScheduleType('week');
                 }
@@ -297,7 +317,7 @@ export default function Schedule() {
       {editingCard && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50" onClick={() => setEditingCard(null)}>
           <div
-            className="bg-white w-[90%] max-w-sm rounded-xl p-6 shadow-lg"
+            className="relative bg-white w-[90%] max-w-sm rounded-xl p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-center text-lg font-bold mb-4">일정 수정</h2>
@@ -360,21 +380,33 @@ export default function Schedule() {
               })}
             </div>
 
-            <div className="flex justify-between">
+
+            <button
+              className="absolute top-0 right-0 mt-4 mr-6 w-[15%] p-1 bg-red-400 text-white rounded hover:bg-red-500"
+              onClick={() => {
+                const updated = scheduleItems.filter(item => item.name !== editingCard.name);
+                setScheduleItems(updated);
+                localStorage.setItem("scheduleItems", JSON.stringify(updated));
+                setEditingCard(null);
+              }}
+            >
+              삭제
+            </button>
+            <div className="relative flex justify-center gap-6 mt-4">
               <button
-                className="w-[48%] py-2 bg-gray-300 text-white rounded cursor-pointer hover:bg-gray-400"
+                className="w-[40%] py-2 bg-gray-300 text-white rounded hover:bg-gray-400"
                 onClick={() => setEditingCard(null)}
               >
                 취소
               </button>
               <button
-                className="w-[48%] py-2 bg-green-400 text-white rounded cursor-pointer hover:bg-green-500"
+                className="w-[40%] py-2 bg-green-400 text-white rounded hover:bg-green-500"
                 onClick={() => {
-                  setScheduleItems((prev) =>
-                    prev.map((item) =>
-                      item.name === editingCard.name ? editingCard : item
-                    )
+                  const updated = scheduleItems.map((item) =>
+                    item.name === editingCard.name ? editingCard : item
                   );
+                  setScheduleItems(updated);
+                  localStorage.setItem("scheduleItems", JSON.stringify(updated));
                   setEditingCard(null);
                 }}
               >

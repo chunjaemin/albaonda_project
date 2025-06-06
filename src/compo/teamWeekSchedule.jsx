@@ -238,7 +238,7 @@ export default function TeamWeekSchedule({
       {/* Tooltip */}
       {hoveredUsers.length > 0 && (
         <div
-          className="absolute z-50 bg-white shadow-lg border border-gray-300 rounded-md p-2 text-sm"
+          className="fixed z-50 bg-white shadow-lg border border-gray-300 rounded-md p-2 text-sm"
           style={{ left: tooltipPosition.x, top: tooltipPosition.y, transform: 'translate(-50%, -100%)' }}
         >
           {hoveredUsers.map(user => (

@@ -38,7 +38,7 @@ export default function Schedule() {
           Holiday: false,
           overtime: false,
           night: false,
-          duty: "4대보험"
+          duty: "4대보험",
         }
       },
       {
@@ -317,7 +317,7 @@ export default function Schedule() {
       {editingCard && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50" onClick={() => setEditingCard(null)}>
           <div
-            className="bg-white w-[90%] max-w-sm rounded-xl p-6 shadow-lg"
+            className="relative bg-white w-[90%] max-w-sm rounded-xl p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-center text-lg font-bold mb-4">일정 수정</h2>
@@ -380,24 +380,33 @@ export default function Schedule() {
               })}
             </div>
 
-            <div className="flex justify-between">
+
+            <button
+              className="absolute top-0 right-0 mt-4 mr-6 w-[15%] p-1 bg-red-400 text-white rounded hover:bg-red-500"
+              onClick={() => {
+                const updated = scheduleItems.filter(item => item.name !== editingCard.name);
+                setScheduleItems(updated);
+                localStorage.setItem("scheduleItems", JSON.stringify(updated));
+                setEditingCard(null);
+              }}
+            >
+              삭제
+            </button>
+            <div className="relative flex justify-center gap-6 mt-4">
               <button
-                className="w-[48%] py-2 bg-gray-300 text-white rounded cursor-pointer hover:bg-gray-400"
+                className="w-[40%] py-2 bg-gray-300 text-white rounded hover:bg-gray-400"
                 onClick={() => setEditingCard(null)}
               >
                 취소
               </button>
               <button
-                className="w-[48%] py-2 bg-green-400 text-white rounded cursor-pointer hover:bg-green-500"
+                className="w-[40%] py-2 bg-green-400 text-white rounded hover:bg-green-500"
                 onClick={() => {
                   const updated = scheduleItems.map((item) =>
                     item.name === editingCard.name ? editingCard : item
                   );
                   setScheduleItems(updated);
-
-                  // ✅ 저장 버튼 눌렀을 때만 로컬 저장
                   localStorage.setItem("scheduleItems", JSON.stringify(updated));
-
                   setEditingCard(null);
                 }}
               >

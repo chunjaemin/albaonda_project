@@ -113,7 +113,7 @@ const dummySchedule = {
       "date": "2025-04-13",
       "dayOfWeek": "일",
       "startTime": "22:00",
-      "endTime": "24:00",
+      "endTime": "23:00",
       "payInfo": {
         "id": "pay006",
         "hourPrice": 12500,

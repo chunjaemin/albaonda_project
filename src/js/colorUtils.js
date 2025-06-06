@@ -26,10 +26,11 @@ export const colorPalette = [
  * @returns {string} - HEX 색상 코드
  */
 export function getUserColor(name) {
-  let hash = 0;
+  let sum = 0;
   for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    const weight = i + 1;
+    sum += name.charCodeAt(i) * weight;
   }
-  const index = Math.abs(hash) % colorPalette.length;
+  const index = sum % colorPalette.length;
   return colorPalette[index];
 }

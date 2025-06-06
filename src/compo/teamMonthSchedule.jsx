@@ -110,7 +110,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
                 return (
                   <div
                     key={`${year}-${month}-${day}`}
-                    className="relative w-1/7 aspect-[1/1] border-r border-b border-gray-200 px-2 py-2"
+                    className="relative w-1/7 aspect-[1/1] border-b border-gray-200 px-2 py-2"
                   >
                     <div className={`absolute top-[4%] left-[6%] text-sm ${isCurrentMonth ? 'text-black' : 'text-gray-400'}`}>
                       {day}

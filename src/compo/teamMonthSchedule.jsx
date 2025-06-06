@@ -60,7 +60,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
       {/* 날짜 컨트롤 바 */}
       <div className="w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3">
         <ChevronLeftIcon
-          className="h-[100%] aspect-[1/1] cursor-pointer"
+          className="w-6 h-6 cursor-pointer"
           onClick={() => {
             if (currentMonth === 1) {
               setCurrentYear((prev) => prev - 1);
@@ -74,7 +74,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
           {currentMonth}월 {currentYear}
         </div>
         <ChevronRightIcon
-          className="h-[100%] aspect-[1/1] cursor-pointer"
+          className="w-6 h-6 cursor-pointer"
           onClick={() => {
             if (currentMonth === 12) {
               setCurrentYear((prev) => prev + 1);
@@ -110,7 +110,7 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
                 return (
                   <div
                     key={`${year}-${month}-${day}`}
-                    className="relative w-1/7 aspect-[1/1] border-r border-b border-gray-200 px-2 py-2"
+                    className="relative w-1/7 aspect-[1/1] border-b border-gray-200 px-2 py-2"
                   >
                     <div className={`absolute top-[4%] left-[6%] text-sm ${isCurrentMonth ? 'text-black' : 'text-gray-400'}`}>
                       {day}
@@ -118,23 +118,34 @@ export default function TeamMonthSchedule({ isEditing, scheduleData }) {
 
                     {/* 사용자 이니셜 동그라미 */}
                     {!isEditing && initials.length > 0 && (
-                      <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 group">
-                        {initials.slice(0, 2).map((user, i) => (
+                      <div className="absolute bottom-2 left-2 flex items-center group">
+                        {initials.slice(0, 3).map((user, i) => (
                           <div
                             key={i}
-                            className={`w-5 h-5 text-xs rounded-full text-white flex items-center justify-center ${isCurrentMonth ? '' : 'opacity-40'}`}
-                            style={{ backgroundColor: getUserColor(user) }}
+                            className={`w-5 h-5 text-xs rounded-full text-white flex items-center justify-center
+                              ${isCurrentMonth ? '' : 'opacity-40'}
+                            `}
+                            style={{
+                              backgroundColor: getUserColor(user),
+                              marginLeft: i === 0 ? 0 : '-7px', // ➜ 앞 원과 50% 겹치게
+                              zIndex: i, // ➜ 오른쪽 원이 위에 보이게
+                            }}
                             title={user}
                           >
                             {user[0]}
                           </div>
                         ))}
-                        {initials.length > 2 && (
+                        {initials.length > 3 && (
                           <>
-                            <span className="text-xs ml-1">...</span>
-                            <div className="absolute top-full left-0 mt-1 p-2 bg-white border rounded shadow-lg z-50 hidden group-hover:block">
+                            <div
+                              className="w-5 h-5 text-xs rounded-full bg-gray-300 text-white flex items-center justify-center ml-[-7px]"
+                              style={{ zIndex: 10 }}
+                            >
+                              +{initials.length - 3}
+                            </div>
+                            <div className="absolute top-full left-0 mt-1 p-3 bg-white rounded shadow-lg z-50 hidden group-hover:block">
                               {initials.sort((a, b) => a.localeCompare(b)).map(name => (
-                                <div key={name} className="flex items-center gap-1 text-xs text-black whitespace-nowrap">
+                                <div key={name} className="flex items-center gap-1 text-sm text-black whitespace-nowrap">
                                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getUserColor(name) }}></div>
                                   {name}
                                 </div>

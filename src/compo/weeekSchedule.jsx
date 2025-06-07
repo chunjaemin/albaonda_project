@@ -106,18 +106,21 @@ const WeekSchedule = forwardRef(({ isModify, entries, setEntries, selectedCard, 
         if (cur !== prev + 30) {
           newEntries.push({
             name: selectedCard.name,
+            nameById: `name-${Date.now()}-${Math.random()}`,
             date,
             dayOfWeek: days[new Date(date).getDay()],
             startTime: formatTime(start),
             endTime: formatTime(prev + 30),
-            hourPrice: selectedCard.payInfo?.hourPrice || 0,
-            overtime: selectedCard.payInfo?.overtime || false,
-            night: selectedCard.payInfo?.night || false,
-            Holiday: selectedCard.payInfo?.Holiday || false,
-            wHoliday: selectedCard.payInfo?.wHoliday || false,
-            duty: selectedCard.payInfo?.duty || '',
-            isTemporary: true // ✅ 이거 반드시 필요!
-          });
+            dayOfWeek: days[new Date(date).getDay()],
+            payInfo: selectedCard.payInfo,
+            userId: `user-${Date.now()}-${Math.random()}`,
+          };
+          const overlap = entries.some(e =>
+            e.date === date &&
+            parseTime(e.startTime) < parseTime(newEntry.endTime) &&
+            parseTime(e.endTime) > parseTime(newEntry.startTime)
+          );
+          if (!overlap) newEntries.push(newEntry);
           start = cur;
         }
         prev = cur;

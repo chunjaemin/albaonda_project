@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { generateCalendarDates, getCurrentYear, getCurrentMonth } from '../js/scheduleDate.js';
 import dummySchedule from '../js/dummyData1.js';
 import { colorPalette } from '../js/colorPalette.js';
@@ -13,6 +13,16 @@ export default function CalenderAutoSalary() {
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
   const dragAreaRef = useRef(null);
+
+  const [scheduleData, setScheduleData] = useState([]);
+  useEffect(() => {
+    const saved = localStorage.getItem('entries');
+    if (saved) {
+      setScheduleData(JSON.parse(saved));
+    } else {
+      setScheduleData(dummySchedule.entries);
+    }
+  }, []);
 
   const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   const dates = useMemo(() => generateCalendarDates(currentYear, currentMonth), [currentYear, currentMonth]);
@@ -61,7 +71,8 @@ export default function CalenderAutoSalary() {
   const totalSalary = useMemo(() => {
     let total = 0;
     selectedFullDates.forEach(date => {
-      dummySchedule.entries
+
+      scheduleData
         .filter(entry => entry.date === date)
         .forEach(entry => {
           const [sh, sm] = entry.startTime.split(':').map(Number);
@@ -85,12 +96,50 @@ export default function CalenderAutoSalary() {
   };
 
   const nameColorMap = useMemo(() => {
-    const uniqueNames = [...new Set(dummySchedule.entries.map(e => e.name))];
+    const uniqueNames = [...new Set(scheduleData.map(e => e.name))];
     return uniqueNames.reduce((acc, name, idx) => {
       acc[name] = colorPalette[idx % colorPalette.length];
       return acc;
     }, {});
-  }, []);
+  }, [scheduleData]);
+
+  const handleCalculateClick = async () => {
+
+    const selectedEntries = scheduleData.filter(entry =>
+      selectedFullDates.includes(entry.date)
+    );
+
+    const payload = { entries: selectedEntries };
+
+    try {
+      const response = await fetch("http://localhost:8000/auto-calculate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("서버 오류");
+      }
+
+      const result = await response.json();
+
+      // 예: 결과를 결과 페이지로 넘기기
+      navigate('/home/calResult', {
+        state: {
+          entries: selectedEntries,
+          result, // 급여 계산 결과 전체
+          name: "천재민",
+          workDays: selectedFullDates.length,
+        },
+      });
+
+    } catch (err) {
+      console.error("💥 계산 실패:", err);
+    }
+  };
 
   return (
     <div
@@ -143,7 +192,9 @@ export default function CalenderAutoSalary() {
                 const monthSet = selectedMap.get(key) || new Set();
                 const isSelected = isCurrentMonth && monthSet.has(day);
                 const fullDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const works = dummySchedule.entries.filter(entry => entry.date === fullDate);
+                const works = isCurrentMonth
+                  ? scheduleData.filter(entry => entry.date === fullDate)
+                  : []; // 👉 이전달/다음달이면 아예 빈 배열
                 const visible = works.slice(0, 2);
                 const hiddenCount = works.length > 2 ? works.length - 2 : 0;
 
@@ -152,7 +203,7 @@ export default function CalenderAutoSalary() {
                     key={day}
                     data-day={day}
                     data-current={isCurrentMonth}
-                    className={`relative w-1/7 aspect-[1/1] border border-gray-200 flex flex-col items-start p-[4px] cursor-pointer ${isSelected ? 'bg-blue-200/70' : ''}`}
+                    className={`relative w-1/7 aspect-[1/1] border-b border-gray-200 flex flex-col items-start p-[4px] cursor-pointer ${isSelected ? 'bg-green-200/70' : ''}`}
                     onMouseDown={() => handleMouseDown(day, isCurrentMonth)}
                     onMouseEnter={() => handleMouseEnter(day, isCurrentMonth)}
                     onTouchStart={() => {
@@ -194,13 +245,7 @@ export default function CalenderAutoSalary() {
           초기화
         </button>
         <button
-          onClick={() => navigate('/home/calResult', {
-            state: {
-              workDays: selectedFullDates.length,
-              name: '천재민',
-              salary: totalSalary,
-            },
-          })}
+          onClick={handleCalculateClick}
           className="flex-1 py-2 bg-green-400 text-white rounded hover:bg-green-500"
         >
           계산하기

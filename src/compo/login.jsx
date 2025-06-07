@@ -19,34 +19,22 @@ export default function Login() {
   const setUser = useAuthStore((s) => s.setUser)
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // 더미데이터 연동용(실제 연동전 까지만 쓰던 코드)
-  // const handleLogin = (credentialResponse) => {
-  //   const userData = jwtDecode(credentialResponse.credential);
-  //   setUser({
-  //     id: "user001",
-  //     name: userData.name,
-  //     email: userData.email,
-  //     teams: ["team001", "team002"]
-  //   })
-  //   navigate('/home/schedule'); // 로그인 성공 시 홈으로 이동
-  // };
+  const handleLogin = (credentialResponse) => {
+    const userData = jwtDecode(credentialResponse.credential);
+    setIsAnimating(true); // 로딩 애니메이션 시작
+    setUser({
+      id: "user001",
+      name: userData.name,
+      email: userData.email,
+      teams: ["team001", "team002"]
+    })
 
-  const { mutate } = useMutation({
-    mutationFn: loginWithGoogle,
-    onSuccess: (data) => {
-      setUser(data.user);
-      setIsAnimating(true); // 로딩 애니메이션 시작
-
-      //애니메이션이 끝날 때 까지 잠깐 기다려주기
-      setTimeout(() => {
-        setIsAnimating(false); // 안 보여도 무방하긴 함
-        navigate('/home/schedule');
-      }, 2000); // 모든 글자 애니메이션이 2초 내외로 끝나므로 약간 여유 있게
-    },
-    onError: (error) => {
-      alert(error.message);
-    },
-  });
+    //애니메이션이 끝날 때 까지 잠깐 기다려주기
+    setTimeout(() => {
+      setIsAnimating(false); // 안 보여도 무방하긴 함
+      navigate('/home/schedule');
+    }, 2000); // 모든 글자 애니메이션이 2초 내외로 끝나므로 약간 여유 있게
+  };
 
   return (
     <div className="relative w-full h-screen bg-gradient-animation overflow-hidden">

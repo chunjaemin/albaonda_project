@@ -23,9 +23,9 @@ export default function UserInfo() {
   };
 
   const icons = {
-    '관리자': '🧑‍💼',
-    '직원': '👩‍💼',
-    '알바': '🧑‍🍳',
+    '관리자': '👑',
+    '직원': '🍔',
+    '알바': '🍟',
   };
 
   const roleOrder = ['관리자', '직원', '알바'];

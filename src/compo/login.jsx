@@ -19,16 +19,16 @@ export default function Login() {
   const handleLogin = (credentialResponse) => {
     const userData = jwtDecode(credentialResponse.credential);
     setIsAnimating(true); // 로딩 애니메이션 시작
-    setUser({
-      id: "user001",
-      name: userData.name,
-      email: userData.email,
-      teams: ["team001", "team002"]
-    })
 
     //애니메이션이 끝날 때 까지 잠깐 기다려주기
     setTimeout(() => {
       setIsAnimating(false); // 안 보여도 무방하긴 함
+      setUser({
+        id: "user001",
+        name: userData.name,
+        email: userData.email,
+        teams: ["team001", "team002"]
+      })
       navigate('/home/schedule');
     }, 2000); // 모든 글자 애니메이션이 2초 내외로 끝나므로 약간 여유 있게
   };

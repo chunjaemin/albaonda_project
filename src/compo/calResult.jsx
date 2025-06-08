@@ -64,8 +64,8 @@ export default function CalResult() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       {isAnimating && (
         <div className="absolute inset-0 z-50 bg-white bg-opacity-80 flex flex-col items-center justify-center perspective">
-          <div className="flex gap-1 text-5xl font-bold mb-4">
-            {'albaonda'.split('').map((char, idx) => (
+          <div className="flex text-5xl font-bold mb-4">
+            {'Albaonda'.split('').map((char, idx) => (
               <div key={idx} className="flip-container">
                 <div className={`flipper delay-${idx}`}>
                   <div className="front">{char}</div>

@@ -1,5 +1,5 @@
 // ✅ noticeBoard.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NoticeEditor from "./noticeEditor";
 import {
   PlusIcon,
@@ -35,8 +35,15 @@ export default function NoticeBoard() {
   const [editorType, setEditorType] = useState("공지사항");
   const [editingItem, setEditingItem] = useState(null);
 
-  const [notices, setNotices] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  const [notices, setNotices] = useState(() => {
+    const saved = localStorage.getItem("notices");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [suggestions, setSuggestions] = useState(() => {
+    const saved = localStorage.getItem("suggestions");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedSuggestionItem, setSelectedSuggestionItem] = useState(null);
@@ -88,6 +95,25 @@ export default function NoticeBoard() {
       return "날짜 오류";
     }
   };
+
+  // ✅ localStorage에서 초기 데이터 불러오기
+  useEffect(() => {
+    const savedNotices = localStorage.getItem("notices");
+    const savedSuggestions = localStorage.getItem("suggestions");
+
+    if (savedNotices) setNotices(JSON.parse(savedNotices));
+    if (savedSuggestions) setSuggestions(JSON.parse(savedSuggestions));
+  }, []);
+
+  // ✅ notices 변경 시 localStorage 저장
+  useEffect(() => {
+    localStorage.setItem("notices", JSON.stringify(notices));
+  }, [notices]);
+
+  // ✅ suggestions 변경 시 localStorage 저장
+  useEffect(() => {
+    localStorage.setItem("suggestions", JSON.stringify(suggestions));
+  }, [suggestions]);
 
   return (
     <>

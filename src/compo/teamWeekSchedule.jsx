@@ -43,6 +43,33 @@ export default function TeamWeekSchedule({
 
   const weekKey = `${currentWeekStart.year}-${String(currentWeekStart.month).padStart(2, '0')}-${String(currentWeekStart.day).padStart(2, '0')}`;
 
+  const getVisibleRowRange = () => {
+    if (isEditing) return [0, 47];
+
+    const currentWeekUsers = scheduleData[weekKey] || {};
+    const usedRows = new Set();
+
+    for (const blocks of Object.values(currentWeekUsers)) {
+      if (!blocks) continue;
+      for (const key of blocks) {
+        const [rowStr] = key.split('-');
+        usedRows.add(Number(rowStr));
+      }
+    }
+
+    if (usedRows.size === 0) {
+      // ✨ 기본 시간대: 08:00 (row 16) ~ 16:00 (row 32)
+      return [16, 36];
+    }
+
+    const min = Math.min(...usedRows);
+    const max = Math.max(...usedRows);
+
+    return [Math.max(0, min - 1), Math.min(47, max + 1)];
+  };
+
+  const [visibleRowStart, visibleRowEnd] = getVisibleRowRange();
+
   useEffect(() => {
     const handleWindowMouseUp = () => {
       if (startCell && endCell && isEditing && selectedUser) {
@@ -152,14 +179,21 @@ export default function TeamWeekSchedule({
 
   return (
     <div className="p-4 mb-4 relative">
+      {/* 수정 안내 배너 */}
+      <div className={`fixed w-[95%] z-5 sm:max-w-[600px] top-2 left-1/2 -translate-x-1/2 mb-2 px-4 py-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-sm text-center font-semibold transition-opacity duration-500 ease-out ${isEditing ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        ✏️ 수정 모드입니다. 블록을 편집하거나 꾹 눌러서 이동할 수 있어요.
+      </div>
+
+      {/* 주차 표시 및 이동 */}
       <div className="w-full aspect-[10/1] flex justify-between items-center pt-3 pb-3">
         <ChevronLeftIcon className="w-6 h-6 cursor-pointer" onClick={handlePrevWeek} />
         <div>
-          {dates[0]?.month}월 {dates[0]?.day}일 - {dates[6]?.month}월 {dates[6]?.day}일, {dates[0]?.year}년
+          {dates[0]?.day && dates[0]?.month}월 {dates[0]?.day}일 - {dates[6]?.month}월 {dates[6]?.day}일, {dates[0]?.year}년
         </div>
         <ChevronRightIcon className="w-6 h-6 cursor-pointer" onClick={handleNextWeek} />
       </div>
 
+      {/* 요일 헤더 */}
       <div className="grid grid-cols-8 text-center mb-1">
         <div className="font-bold"><br />시간</div>
         {days.map((day, i) => (
@@ -170,69 +204,73 @@ export default function TeamWeekSchedule({
         ))}
       </div>
 
-      <div className="grid grid-cols-8">
-        {Array.from({ length: 48 }, (_, rowIndex) => (
-          <React.Fragment key={`row-${rowIndex}`}>
-            <div className={`text-xs flex items-center justify-center h-8 ${rowIndex % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}>
-              {rowIndex % 2 === 0 ? hours[rowIndex] : ''}
-            </div>
-            {days.map((_, colIndex) => {
-              const blockKey = `${rowIndex}-${colIndex}`;
-              const isEditable = isEditing && selectedUser;
-              const isPreview = previewBlocks.has(blockKey);
-              const blockUsers = Object.entries(currentWeekUsers)
-                .filter(([_, blocks]) => blocks?.has?.(blockKey))
-                .map(([user]) => user);
+      {/* 타임블록 그리드 */}
+      <div className={`grid grid-cols-8 ${isEditing ? "border-3 border-dotted border-green-400" : ''}`}>
+        {Array.from({ length: visibleRowEnd - visibleRowStart + 1 }, (_, i) => {
+          const rowIndex = visibleRowStart + i;
+          return (
+            <React.Fragment key={`row-${rowIndex}`}>
+              <div className={`text-xs flex items-center justify-center h-8 ${rowIndex % 2 === 0 ? 'bg-green-200' : 'bg-green-100'}`}>
+                {rowIndex % 2 === 0 ? hours[rowIndex] : ''}
+              </div>
+              {days.map((_, colIndex) => {
+                const blockKey = `${rowIndex}-${colIndex}`;
+                const isEditable = isEditing && selectedUser;
+                const isPreview = previewBlocks.has(blockKey);
+                const blockUsers = Object.entries(currentWeekUsers)
+                  .filter(([_, blocks]) => blocks?.has?.(blockKey))
+                  .map(([user]) => user);
 
-              if (isEditable && isPreview && selectedUser && !blockUsers.includes(selectedUser)) {
-                blockUsers.push(selectedUser);
-              }
+                if (isEditable && isPreview && selectedUser && !blockUsers.includes(selectedUser)) {
+                  blockUsers.push(selectedUser);
+                }
 
-              const visibleUsers = blockUsers.slice(0, 3);
-              const hiddenCount = blockUsers.length - 3;
+                const visibleUsers = blockUsers.slice(0, 3);
+                const hiddenCount = blockUsers.length - 3;
 
-              return (
-                <div
-                  key={blockKey}
-                  className={`
-                    relative h-8 border-t border-r border-gray-300 transition duration-100 
-                    ${rowIndex === 47 ? 'border-b' : ''}
-                    ${isEditable ? 'hover:border-blue-400 hover:cursor-pointer' : ''}
-                    ${isPreview ? 'border-2 border-blue-500 border-dashed animate-pulse bg-blue-100/30' : ''}
-                  `}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleMouseDown(rowIndex, colIndex);
-                  }}
-                  onMouseEnter={(e) => {
-                    handleMouseEnter(rowIndex, colIndex, e);
-                    handleHover(blockUsers, e);
-                  }}
-                  onMouseLeave={handleLeave}
-                >
-                  {blockUsers.length > 0 && (
-                    <div className="flex items-center relative h-full overflow-visible pl-[2px]">
-                      {visibleUsers.map((user, idx) => (
-                        <div
-                          key={user}
-                          className={`w-6 h-6 rounded-full text-[10px] text-white flex items-center justify-center border border-white ${idx > 0 ? '-ml-2' : ''}`}
-                          style={{ backgroundColor: getUserColor(user) }}
-                        >
-                          {user[0]}
-                        </div>
-                      ))}
-                      {hiddenCount > 0 && (
-                        <div className={`w-6 h-6 rounded-full bg-gray-300 text-[10px] text-black flex items-center justify-center border border-white -ml-2`}>
-                          +{hiddenCount}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </React.Fragment>
-        ))}
+                return (
+                  <div
+                    key={blockKey}
+                    className={`
+                      relative h-8 border-t border-r border-gray-300 transition duration-100 
+                      ${rowIndex === 47 ? 'border-b' : ''}
+                      ${isEditable ? 'hover:border-blue-400 hover:cursor-pointer' : ''}
+                      ${isPreview ? 'border-2 border-blue-500 border-dashed animate-pulse bg-blue-100/30' : ''}
+                    `}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleMouseDown(rowIndex, colIndex);
+                    }}
+                    onMouseEnter={(e) => {
+                      handleMouseEnter(rowIndex, colIndex, e);
+                      handleHover(blockUsers, e);
+                    }}
+                    onMouseLeave={handleLeave}
+                  >
+                    {blockUsers.length > 0 && (
+                      <div className="flex items-center relative h-full overflow-visible pl-[2px]">
+                        {visibleUsers.map((user, idx) => (
+                          <div
+                            key={user}
+                            className={`w-6 h-6 rounded-full text-[10px] text-white flex items-center justify-center border border-white ${idx > 0 ? '-ml-2' : ''}`}
+                            style={{ backgroundColor: getUserColor(user) }}
+                          >
+                            {user[0]}
+                          </div>
+                        ))}
+                        {hiddenCount > 0 && (
+                          <div className={`w-6 h-6 rounded-full bg-gray-300 text-[10px] text-black flex items-center justify-center border border-white -ml-2`}>
+                            +{hiddenCount}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {/* Tooltip */}

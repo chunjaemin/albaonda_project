@@ -18,6 +18,7 @@ export default function Schedule() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedCardInfoModal, setSelectedCardInfoModal] = useState(null);
   const [editingCard, setEditingCard] = useState(null); // 현재 수정 중인 카드
+  const [showToast, setShowToast] = useState(false); // ✅ 토스트 상태
 
   const [entries, setEntries] = useState(() => {
     const saved = localStorage.getItem("entries");
@@ -164,6 +165,10 @@ export default function Schedule() {
                   localStorage.setItem("scheduleItems", JSON.stringify(scheduleItems));
                   setOriginalEntries(null);
                   setIsModify(false);
+
+                  // ✅ 토스트 메시지 띄우기
+                  setTimeout(() => setShowToast(true), 500);
+                  setTimeout(() => setShowToast(false), 3500);
                 } else {
                   setOriginalEntries(JSON.parse(JSON.stringify(entries))); // 깊은 복사
                   setIsModify(true);
@@ -203,6 +208,22 @@ export default function Schedule() {
                 entries={entries}
                 setEntries={setEntries}
               />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ✅ 토스트 메시지 */}
+        <AnimatePresence>
+          {showToast && (
+            <motion.div
+              key="toast"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute w-[95%] z-5 sm:max-w-[600px] top-2 left-1/2 -translate-x-1/2 mb-2 px-4 py-2 bg-green-100 border-l-4 border-green-400 text-green-800 text-sm text-center font-semibold transition-opacity duration-500 ease-out "
+            >
+              ✅ 저장이 완료되었습니다!
             </motion.div>
           )}
         </AnimatePresence>

@@ -94,10 +94,13 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
           const newEntry = {
             id: `entry-${Date.now()}-${Math.random()}`,
             name: selectedCard.name,
+            nameById: `name-${Date.now()}-${Math.random()}`,
             date,
             startTime: formatTime(start),
             endTime: formatTime(prev + 30),
-            ...selectedCard.payInfo
+            dayOfWeek: days[new Date(date).getDay()],
+            payInfo: selectedCard.payInfo,
+            userId: `user-${Date.now()}-${Math.random()}`,
           };
           const overlap = entries.some(e =>
             e.date === date &&
@@ -262,11 +265,11 @@ export default function WeekSchedule({ isModify, entries, setEntries, selectedCa
                 const baseColorClass = nameColorMap[entry.name]; // ex: "bg-rose-100"
                 const borderColorClass = baseColorClass.replace("bg-", "border-").replace("-100", "-300");
                 if (current === start) {
-                  borderClass = `border-t-2 border-l-2 border-r-2 ${borderColorClass} border-dashed animate-wiggle`;
+                  borderClass = `border-t-2 border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle`;
                 } else if (current === end - 30) {
-                  borderClass = `border-b-2 border-l-2 border-r-2 ${borderColorClass} border-dashed animate-wiggle`;
+                  borderClass = `border-b-2 border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle`;
                 } else if (current > start && current < end) {
-                  borderClass = `border-l-2 border-r-2 ${borderColorClass} border-dashed animate-wiggle`;
+                  borderClass = `border-l-2 border-r-2 border-red-300 border-dashed animate-wiggle`;
                 }
               } else {
                 // ✅ 내부 셀은 border-right & border-bottom만 적용, 첫 열/행은 left/top 추가
